@@ -1,0 +1,85 @@
+{% extends "main/base.html" %}
+
+{% block head_title %} {% endblock head_title %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <header class="bg-blue-50">
+        <div class="container mx-auto px-6 py-20 text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">The All-In-One Platform to Manage Your Hospital</h1>
+            <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Streamline operations, enhance patient care, and boost efficiency with our secure, cloud-based Hospital Management System.</p>
+            <a href="#" class="mt-8 inline-block bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition shadow-lg">Get Started for Free</a>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Platform Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Card 1 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:scale-105 transition-transform">
+                    <div class="bg-blue-100 text-blue-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Appointment Scheduling</h3>
+                    <p class="text-gray-600">Manage doctor schedules and patient appointments seamlessly with our intuitive calendar system.</p>
+                </div>
+                <!-- Feature Card 2 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:scale-105 transition-transform">
+                    <div class="bg-green-100 text-green-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Electronic Health Records</h3>
+                    <p class="text-gray-600">Securely store and access patient medical histories, prescriptions, and lab reports from anywhere.</p>
+                </div>
+                <!-- Feature Card 3 -->
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center hover:scale-105 transition-transform">
+                    <div class="bg-yellow-100 text-yellow-600 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                       <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Billing & Invoicing</h3>
+                    <p class="text-gray-600">Automate your billing processes, manage payments, and generate financial reports with ease.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Get Started in 3 Simple Steps</h2>
+            <div class="flex flex-col md:flex-row justify-center items-center text-center gap-8 md:gap-16">
+                <!-- Step 1 -->
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-4">1</div>
+                    <h3 class="text-xl font-semibold mb-2">Register Your Hospital</h3>
+                    <p class="text-gray-600 max-w-xs">Create your hospital's account in minutes with our simple signup process.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-4">2</div>
+                    <h3 class="text-xl font-semibold mb-2">Onboard Your Staff</h3>
+                    <p class="text-gray-600 max-w-xs">Easily add your doctors, receptionists, and other staff members to the platform.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="flex flex-col items-center">
+                    <div class="bg-blue-600 text-white w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-4">3</div>
+                    <h3 class="text-xl font-semibold mb-2">Start Managing</h3>
+                    <p class="text-gray-600 max-w-xs">Begin managing appointments, patients, and billing from your new dashboard.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">About Our Platform</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                We are a team of healthcare and technology professionals dedicated to building the future of hospital management. Our mission is to empower medical institutions of all sizes with a powerful, affordable, and easy-to-use software solution.
+            </p>
+        </div>
+    </section>
+
+{% endblock content %}
