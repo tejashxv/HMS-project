@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMS - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 flex-shrink-0 bg-cyan-700 text-white flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="h-16 flex items-center justify-center border-b border-cyan-800">
+                <a href="#" class="text-2xl font-bold flex items-center">
+                    <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 14l9-5-9-5-9 5 9 5z"></path><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-5.998 12.078 12.078 0 01.665-6.479L12 14z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-5.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
+                    <span>Cliniko</span>
+                </a>
+            </div>
+            <nav class="flex-1 px-2 py-4 space-y-1">
+                <a href="#" class="flex items-center px-4 py-2 text-white bg-cyan-800 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    Dashboard
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-cyan-100 hover:bg-cyan-600 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Appointments
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-cyan-100 hover:bg-cyan-600 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197M15 21a6 6 0 006-5.197M15 15a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Patients
+                </a>
+                 <a href="#" class="flex items-center px-4 py-2 text-cyan-100 hover:bg-cyan-600 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Invoices
+                </a>
+                 <a href="#" class="flex items-center px-4 py-2 text-cyan-100 hover:bg-cyan-600 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    Payments
+                </a>
+                 <a href="#" class="flex items-center px-4 py-2 text-cyan-100 hover:bg-cyan-600 rounded-md">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                    Products
+                </a>
+            </nav>
+            <div class="px-2 py-4 mt-auto border-t border-cyan-800">
+                <div class="group">
+                    <a href="#" class="flex items-center justify-between w-full px-4 py-2 text-left text-cyan-100 rounded-md hover:bg-cyan-600">
+                        <span>Tejash Y</span>
+                        <svg class="w-5 h-5 transform transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </a>
+                    <div class="hidden group-hover:block pt-2 pl-4">
+                        <a href="#" class="block py-1 text-sm text-cyan-200 hover:text-white">My Info</a>
+                        <a href="#" class="block py-1 text-sm text-cyan-200 hover:text-white">Log out</a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200">
+                <div class="flex items-center justify-between h-16 px-4 md:px-8">
+                    <!-- Menu Toggle Button -->
+                    <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h2>
+                    
+                    <!-- Placeholder to balance the header -->
+                    <div class="w-6"></div>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-4 md:p-8">
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Left Column: Message Board -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-cyan-700">Message board</h3>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600 transition flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                New message
+                            </button>
+                        </div>
+                        
+                        <div class="border rounded-lg p-4 relative">
+                            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <h4 class="font-bold text-lg">Welcome to Cliniko!</h4>
+                            <p class="text-sm text-gray-500 mb-4">The Cliniko Team - 35 minutes ago</p>
+                            
+                            <div class="space-y-4 text-gray-700">
+                                <p>This is your internal message board, where you can write messages to the other people in your account. You can also make comments, so it's a great place for discussions.</p>
+                                <p>Here's our <a href="#" class="text-blue-600 underline">guide to setting up</a>, where you'll find some of the ways that you can get started in your new Cliniko account!</p>
+                                <p>Cliniko support loves to help! We've got years and years of experience knowing the best way to get Cliniko working efficiently for you. If you have questions at any time, our friendly team are just a moment away. Just select the "Help" option in the side-bar on the left to reach us via chat within Cliniko itself.</p>
+                                <p>Would you like to know more? Our <a href="#" class="text-blue-600 underline">support site</a> is full of nifty articles: from learning the basics, through to becoming an unstoppable Cliniko machine!</p>
+                                <p>Enjoy!</p>
+                            </div>
+
+                            <div class="mt-6">
+                                <a href="#" class="text-blue-600 font-semibold flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    Write a reply
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Info Cards -->
+                    <div class="space-y-8">
+                        <!-- Draft treatment notes card -->
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h3 class="text-lg font-semibold text-cyan-700 mb-4">Draft treatment notes</h3>
+                            <div class="text-center py-8">
+                                <img src="https://placehold.co/100x100/E0F2F7/0E7490?text=Notes" class="mx-auto mb-4 opacity-70" alt="Notes Icon">
+                                <p class="text-gray-600">Great work — there are no draft treatment notes!</p>
+                            </div>
+                        </div>
+
+                        <!-- Recent SMS card -->
+                        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                            <h3 class="text-lg font-semibold text-cyan-700 mb-4">Recent SMS replies from patients</h3>
+                             <div class="text-center py-8">
+                                <img src="https://placehold.co/100x100/E0F2F7/0E7490?text=SMS" class="mx-auto mb-4 opacity-70" alt="SMS Icon">
+                                <p class="text-gray-600">When one of your patients replies to an appointment reminder, it will show up here.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        
+        <!-- Sidebar Overlay -->
+        <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black opacity-50 z-20"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const mdBreakpoint = 768;
+
+            // Function to update layout based on sidebar state and window size
+            const updateLayout = () => {
+                const isDesktop = window.innerWidth >= mdBreakpoint;
+                const isSidebarOpen = !sidebar.classList.contains('-translate-x-full');
+
+                if (isDesktop) {
+                    // Desktop view
+                    sidebarOverlay.classList.add('hidden'); // Always hide overlay on desktop
+                    if (isSidebarOpen) {
+                        mainContent.style.marginLeft = '16rem'; // w-64
+                    } else {
+                        mainContent.style.marginLeft = '0';
+                    }
+                } else {
+                    // Mobile view
+                    mainContent.style.marginLeft = '0'; // No margin on mobile
+                    if (isSidebarOpen) {
+                        sidebarOverlay.classList.remove('hidden');
+                    } else {
+                        sidebarOverlay.classList.add('hidden');
+                    }
+                }
+            };
+
+            // Toggle sidebar visibility
+            const toggleSidebar = () => {
+                sidebar.classList.toggle('-translate-x-full');
+                updateLayout();
+            };
+
+            // Event listeners
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+            window.addEventListener('resize', updateLayout);
+
+            // Set initial state on page load
+            if (window.innerWidth >= mdBreakpoint) {
+                sidebar.classList.remove('-translate-x-full'); // Open by default on desktop
+            }
+            updateLayout(); // Set initial margin/overlay
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+<div class="w-full max-w-2xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg my-12">
+        <div class="text-center mb-8">
+            <a href="#" class="text-3xl font-bold text-blue-600">HMS Platform</a>
+            <h2 class="mt-4 text-2xl font-bold text-gray-900">Create Your Hospital's Account</h2>
+            <p class="text-gray-600">Join the future of healthcare management.</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <!-- Hospital Information Section -->
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Hospital Information</h3>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label for="hospital-name" class="block text-sm font-medium text-gray-700">Hospital Name</label>
+                            <input type="text" name="hospital-name" id="hospital-name" placeholder="e.g., City Central Hospital" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="hospital-address" class="block text-sm font-medium text-gray-700">Address</label>
+                            <input type="text" name="hospital-address" id="hospital-address" placeholder="123 Health St, Civil Lines" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                         <div>
+                            <label for="hospital-phone" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                            <input type="tel" name="hospital-phone" id="hospital-phone" placeholder="(0532) 123-4567" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subdomain Section -->
+                 <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Choose Your Subdomain</h3>
+                     <div>
+                        <label for="subdomain" class="block text-sm font-medium text-gray-700">Platform URL</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="text" name="subdomain" id="subdomain" placeholder="myhospital" class="flex-1 min-w-0 block w-full px-4 py-2 rounded-none rounded-l-md focus:ring-blue-500 focus:border-blue-500 border-gray-300">
+                            <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">.hmsplatform.com</span>
+                        </div>
+                         <p class="mt-2 text-xs text-gray-500">This will be your hospital's unique web address on our platform.</p>
+                    </div>
+                </div>
+
+                <!-- Administrator Account Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Administrator Account</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="admin-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" name="admin-name" id="admin-name" placeholder="Aditi Kauser" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="admin-email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input type="email" name="admin-email" id="admin-email" placeholder="admin@myhospital.com" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" name="password" id="password" required class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Submit -->
+            <div class="mt-8">
+                <div class="flex items-center">
+                    <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="terms" class="ml-2 block text-sm text-gray-900">
+                        I agree to the <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Terms of Service</a>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Account
+                </button>
+            </div>
+        </form>
+
+        <p class="mt-8 text-center text-sm text-gray-600">
+            Already have an account?
+            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+                Log in
+            </a>
+        </p>
+    </div>
+  
+{% endblock content %}
