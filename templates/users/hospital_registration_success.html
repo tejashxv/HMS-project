@@ -1,0 +1,67 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+
+<div class="w-full max-w-lg mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg text-center m-10">
+        
+        <!-- Success Icon -->
+        <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
+            <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <!-- Success Message -->
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Registration Successful!</h2>
+        <p class="mt-4 text-gray-600">
+            Thank you for joining the HMS Platform. Your hospital's account has been created successfully.
+        </p>
+
+        <!-- Dynamic Info Box -->
+        <div class="mt-6 bg-gray-100 p-4 rounded-lg border border-gray-200 text-left">
+            <p class="text-sm text-gray-700">
+                <span class="font-semibold">Hospital Name:</span> 
+                <span id="hospital-name-display" class="text-gray-900"> {{ hospital.hospital_name }}</span> <!-- This can be dynamically populated -->
+            </p>
+            <p class="text-sm text-gray-700 mt-2">
+                <span class="font-semibold">Your Login URL:</span> 
+                <a href="https://{{ hospital.subdomain }}.hmsplatform.com" id="login-url-display" class="text-blue-600 font-mono">{{ hospital.subdomain }}.hmsplatform.com</a> <!-- This can be dynamically populated -->
+            </p>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="mt-8">
+            <a href="{% url 'hospital_login' %}" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Go to Login page
+            </a>
+        </div>
+
+        <p class="mt-6 text-xs text-gray-500">
+            A confirmation email has been sent to your administrator's address.
+        </p>
+    </div>
+  
+{% endblock content %}
+
+
+{% block extra_scripts %}
+        <script>
+        // Example of how you might dynamically populate the data from the URL query parameters
+        // For instance, if the previous page redirected to: success.html?name=MyHospital&subdomain=myhospital
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const hospitalName = params.get('name');
+            const subdomain = params.get('subdomain');
+
+            if (hospitalName) {
+                document.getElementById('hospital-name-display').textContent = hospitalName;
+            }
+            if (subdomain) {
+                const loginUrlElement = document.getElementById('login-url-display');
+                const url = `${subdomain}.hmsplatform.com`;
+                loginUrlElement.textContent = url;
+                loginUrlElement.href = `http://${url}`; // Make it a clickable link
+            }
+        });
+    </script>
+{% endblock extra_scripts %}
