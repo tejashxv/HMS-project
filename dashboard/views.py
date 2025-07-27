@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
 # Create your views here.
-def dashboard(request):
+def home_tenant(request):
     return render(request, 'login_main/dashboard.html', {})
 

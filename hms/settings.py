@@ -25,25 +25,44 @@ SECRET_KEY = 'django-insecure-gq)zv&65g1k^g^a=(vd3u@_+scg3*xh)yaz*&oow#gk_&17im0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
-INSTALLED_APPS = [
+
+SHARED_APPS = (
+    'django_tenants',  # must be first
+    'users',           # your auth or shared app
+    'main',
     'django.contrib.admin',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dashboard',
-    'main',
-    'users'
-    
+)
+
+TENANT_APPS = [
+    'dashboard',   
 ]
 
+INSTALLED_APPS = list(SHARED_APPS) + list(TENANT_APPS)
+TENANT_MODEL = "users.Hospital"
+TENANT_DOMAIN_MODEL = "users.Domain"
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
+
+
+PUBLIC_SCHEMA_URLCONF = 'hms.public_urls'        
+TENANT_URLCONF = 'hms.urls'              
+
+TENANT_DOMAIN = "localhost" 
+
+
 MIDDLEWARE = [
+    'django_tenants.middleware.TenantMainMiddleware',  
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,8 +98,12 @@ WSGI_APPLICATION = 'hms.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django_tenants.postgresql_backend',
+        'NAME': 'hospital',
+        'USER': 'postgres',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',  # Or your DB host
+        'PORT': '5432',       # Default PostgreSQL port
     }
 }
 

@@ -1,6 +1,6 @@
-from django.contrib import admin
 from django.urls import path,include
 from .views import *
+from main.views import home  # or your dashboard view
 
 urlpatterns = [
     path('register/', hospital_register, name='hospital_register'),
