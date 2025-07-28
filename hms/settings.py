@@ -25,8 +25,10 @@ SECRET_KEY = 'django-insecure-gq)zv&65g1k^g^a=(vd3u@_+scg3*xh)yaz*&oow#gk_&17im0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['public.127.0.0.1.nip.io','.127.0.0.1.nip.io']
+# CSRF_TRUSTED_ORIGINS = [
+#     'http://public.localhost:8000',
+# ]
 
 # Application definition
 
@@ -58,7 +60,7 @@ DATABASE_ROUTERS = (
 PUBLIC_SCHEMA_URLCONF = 'hms.public_urls'        
 TENANT_URLCONF = 'hms.urls'              
 
-TENANT_DOMAIN = "localhost" 
+# TENANT_DOMAIN = "localhost" 
 
 
 MIDDLEWARE = [
@@ -70,6 +72,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dashboard.middleware.TenantLoginRequiredMiddleware', 
+    
 ]
 
 ROOT_URLCONF = 'hms.urls'
@@ -148,3 +152,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# settings.py
+
+# The leading dot is ESSENTIAL
+SESSION_COOKIE_DOMAIN = '.127.0.0.1.nip.io'
+CSRF_COOKIE_DOMAIN = '.127.0.0.1.nip.io'
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

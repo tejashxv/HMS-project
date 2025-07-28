@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from .models import *
 from django.contrib import messages
 from django.db import transaction
+from django.contrib.auth import authenticate, login
+# from django_tenants.views import login_and_redirect
 
 def hospital_register(request):
     if request.method == 'POST':
@@ -39,7 +41,7 @@ def hospital_register(request):
                 )
 
                 Domain.objects.create(
-                    domain=f'{hospital_subdomain}.localhost',  # works locally
+                    domain=f'{hospital_subdomain}.127.0.0.1.nip.io',  
                     tenant=hospital,
                     is_primary=True
                 )
@@ -67,21 +69,44 @@ def hospital_register_success(request):
 
 
 
+# users/views.py
+
 def hospital_login(request):
     if request.method == 'POST':
         subdomain = request.POST.get('subdomain')
+        username = request.POST.get('username') 
         password = request.POST.get('password')
-        print(subdomain, password)
-        try:
-            hospital = Hospital.objects.get(schema_name=subdomain)
-            print(hospital)
-            user = hospital.owner
-            if user.check_password(password):
-                messages.success(request, f'Welcome back, {user.first_name}!')
-                return redirect(f'http://{hospital.schema_name}.localhost:8000/')  
-            else:
-                messages.error(request, 'Invalid password.')
-        except Hospital.DoesNotExist:
-            messages.error(request, 'Hospital with this subdomain does not exist.')
-    
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            try:
+                hospital = Hospital.objects.get(schema_name=subdomain, owner=user)
+                login(request, user)
+                messages.success(request, f'Welcome back, {user.username}!')
+                
+                # --- THIS IS THE KEY CHANGE ---
+                # Check if there is a 'next' parameter in the URL
+                next_path = request.GET.get('next')
+                print("Next path:", next_path)
+                # Construct the full URL to redirect to
+                redirect_url = f'http://{hospital.schema_name}.127.0.0.1.nip.io:8000'
+                
+                if next_path:
+                    # If there was a 'next' path, append it.
+                    # This sends the user back to the page they originally wanted.
+                    redirect_url += next_path
+                else:
+                    # Otherwise, send them to a default page like the dashboard.
+                    redirect_url += '/'
+                print("Redirecting to:", redirect_url)
+                return redirect(
+                    redirect_url
+                )
+
+            except Hospital.DoesNotExist:
+                messages.error(request, 'You do not have access to this hospital or it does not exist.')
+        else:
+            messages.error(request, 'Invalid email or password.')
+            
     return render(request, 'users/hospital_login.html')
