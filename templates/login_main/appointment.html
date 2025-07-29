@@ -1,0 +1,133 @@
+{% extends "login_main/base/base.html" %}
+
+{% block content %}
+  
+
+<div class="space-y-6">
+    <!-- Header with date navigation and actions -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <h2 class="text-2xl font-bold text-gray-800">Appointments</h2>
+            <div class="flex items-center space-x-2">
+                <button class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="text-gray-700 font-medium">June 12 - 18, 2023</span>
+                <button class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="text-sm text-primary hover:text-primary-dark font-medium ml-2">
+                    Today
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <button id="view-toggle" class="flex items-center text-gray-700 hover:text-gray-900 px-3 py-1.5 border border-gray-300 rounded-lg bg-white">
+                    <span class="mr-2">Week</span>
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+                <div id="view-options" class="hidden absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Day</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Week</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Month</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">List</a>
+                </div>
+            </div>
+            <button class="text-sm bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg font-medium flex items-center">
+                <i class="fas fa-plus mr-2"></i> New Appointment
+            </button>
+        </div>
+    </div>
+
+    <!-- Calendar View -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full appointment-calendar">
+            <thead>
+                <tr>
+                    <th class="p-2 w-10"></th>
+                    <th class="p-2">Mon<br>12</th>
+                    <th class="p-2">Tue<br>13</th>
+                    <th class="p-2">Wed<br>14</th>
+                    <th class="p-2 today">Thu<br>15</th>
+                    <th class="p-2">Fri<br>16</th>
+                    <th class="p-2">Sat<br>17</th>
+                    <th class="p-2">Sun<br>18</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Time slots from 8AM to 5PM -->
+                {% for hour in "8,9,10,11,12,13,14,15,16,17"|split %}
+                <tr>
+                    <td class="p-1 text-xs text-gray-500 text-right pr-2">{{ hour }}:00 {% if hour|int < 12 %}AM{% else %}PM{% endif %}</td>
+                    {% for day in range(7) %}
+                    <td class="p-1 {% if day == 3 %}today{% endif %}">
+                        <!-- Sample appointment - in real app you'd loop through actual appointments -->
+                        {% if hour == "9" and day == 0 %}
+                        <span class="appointment-badge bg-blue-100 text-blue-800 rounded">John Smith</span>
+                        {% elif hour == "10" and day == 3 %}
+                        <span class="appointment-badge bg-red-100 text-red-800 rounded">Urgent</span>
+                        {% elif hour == "14" and day == 4 %}
+                        <span class="appointment-badge bg-green-100 text-green-800 rounded">Follow-up</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Upcoming Appointments List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <h3 class="font-semibold text-gray-800">Upcoming Appointments</h3>
+            <a href="#" class="text-sm text-primary hover:text-primary-dark font-medium">View All</a>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for appointment in appointments %}
+            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ appointment.patient_name }}</p>
+                                <p class="text-sm text-gray-500">{{ appointment.appointment_type }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">{{ appointment.date }}</p>
+                                <p class="text-sm text-gray-500">{{ appointment.time }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if appointment.status == 'Confirmed' %}bg-green-100 text-green-800
+                            {% elif appointment.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ appointment.status }}
+                        </span>
+                    </div>
+                    <div class="ml-4 flex space-x-2">
+                        <button class="text-primary hover:text-primary-dark">
+                            <i class="far fa-edit"></i>
+                        </button>
+                        <button class="text-red-600 hover:text-red-800">
+                            <i class="far fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock content %}

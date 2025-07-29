@@ -13,3 +13,6 @@ def home_tenant(request):
 def user_logout(request):
     logout(request)
     return redirect('http://public.127.0.0.1.nip.io:8000/')  
+
+def appointements(request):
+    return render(request, 'login_main/appointment.html', {})

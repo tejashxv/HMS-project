@@ -1,0 +1,135 @@
+<script>
+    // <--------------------------------------DASHBOARD---------------------------------------->
+     document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebarClose = document.getElementById('sidebar-close');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const mdBreakpoint = 768;
+
+            // Function to update layout based on sidebar state and window size
+            const updateLayout = () => {
+                const isDesktop = window.innerWidth >= mdBreakpoint;
+                const isSidebarOpen = !sidebar.classList.contains('-translate-x-full');
+
+                if (isDesktop) {
+                    // Desktop view
+                    sidebarOverlay.classList.add('hidden');
+                    if (isSidebarOpen) {
+                        mainContent.style.marginLeft = '16rem'; // w-64
+                    } else {
+                        mainContent.style.marginLeft = '0';
+                    }
+                } else {
+                    // Mobile view
+                    mainContent.style.marginLeft = '0';
+                    if (isSidebarOpen) {
+                        sidebarOverlay.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        sidebarOverlay.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }
+                }
+            };
+
+            // Toggle sidebar visibility
+            const toggleSidebar = () => {
+                sidebar.classList.toggle('-translate-x-full');
+                updateLayout();
+            };
+
+            // Close sidebar (for mobile close button)
+            const closeSidebar = () => {
+                sidebar.classList.add('-translate-x-full');
+                updateLayout();
+            };
+
+            // Event listeners
+            sidebarToggle.addEventListener('click', toggleSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+            window.addEventListener('resize', updateLayout);
+
+            // Set initial state on page load
+            if (window.innerWidth >= mdBreakpoint) {
+                sidebar.classList.remove('-translate-x-full'); // Open by default on desktop
+            }
+            updateLayout(); // Set initial margin/overlay
+            
+            // Add animation classes after page load
+            setTimeout(() => {
+                const animatedElements = document.querySelectorAll('.animate-fade-in');
+                animatedElements.forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+
+            document.addEventListener('DOMContentLoaded', () => {
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        const chevron = document.getElementById('user-menu-chevron');
+        
+        // Toggle menu on button click
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = userMenu.classList.contains('hidden');
+            
+            // Close any other open dropdowns first
+            document.querySelectorAll('.user-menu').forEach(menu => {
+                if (menu !== userMenu) {
+                    menu.classList.add('hidden');
+                    menu.previousElementSibling.querySelector('i').classList.remove('rotate-180');
+                }
+            });
+            
+            // Toggle current dropdown
+            if (isOpen) {
+                userMenu.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                userMenu.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target) && e.target !== userMenuButton) {
+                userMenu.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+        
+        // Close menu when pressing Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        });
+    });
+
+
+    // <--------------------------------------APPOINTMENT---------------------------------------->
+document.addEventListener('DOMContentLoaded', function() {
+        // View toggle dropdown
+        const viewToggle = document.getElementById('view-toggle');
+        const viewOptions = document.getElementById('view-options');
+        
+        if (viewToggle && viewOptions) {
+            viewToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                viewOptions.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (!viewToggle.contains(e.target) && !viewOptions.contains(e.target)) {
+                    viewOptions.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
