@@ -1,100 +1,258 @@
 {% extends "login_main/base/base.html" %}
+{% load custom_filters %}
+
+{% block extra_style %}
+{% endblock extra_style %}
 
 {% block content %}
   
-
-<div class="container mx-auto">
-    <!-- Header Section for Appointments Page -->
-    <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800">Appointments Schedule</h2>
-            <p class="text-gray-500 text-sm">Manage your weekly patient bookings.</p>
-        </div>
-        <button class="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-cyan-800 transition flex items-center">
-            <i class="fas fa-plus mr-2"></i>
-            Book New Appointment
-        </button>
-    </div>
-
-    <!-- Filters and Date Navigation Card -->
-    <div class="bg-white p-4 rounded-xl shadow-md border border-gray-200 mb-6 animate-fade-in">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-            <!-- Date Navigation -->
-            <div class="flex items-center justify-center md:justify-start space-x-2">
-                <button class="p-2 rounded-md hover:bg-gray-100 text-gray-500">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div class="text-center">
-                    <h3 class="font-semibold text-md text-gray-800">July 28 - Aug 3, 2025</h3>
-                    <p class="text-xs text-gray-500">Today: Friday, Aug 1</p>
+<div class="max-w-6xl mx-auto">
+    <div class="flex flex-col md:flex-row gap-6">
+        <!-- Left Column - Appointment Form -->
+        <div class="w-full md:w-1/2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Book New Appointment</h3>
+            
+            <form id="appointment-form" method="post">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <!-- Patient Selection -->
+                    <div>
+                        <label for="patient" class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
+                        <div class="relative">
+                            <select id="patient" name="patient" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                                <option value="">Select Patient</option>
+                                {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.full_name }} ({{ patient.phone_number }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                        <a href="#" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
+                    </div>
+                    
+                    <!-- Doctor Selection -->
+                    <div>
+                        <label for="doctor" class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+                        <div class="relative">
+                            <select id="doctor" name="doctor" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                                <option value="">Select Doctor</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}">Dr. {{ doctor.user.full_name }} ({{ doctor.specialization }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Date and Time -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <div class="relative">
+                                <input type="date" id="date" name="date" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="far fa-calendar text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <div class="relative">
+                                <select id="time" name="time" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                                    <option value="">Select Time</option>
+                                    <option value="09:00">09:00 AM</option>
+                                    <option value="09:30">09:30 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="10:30">10:30 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="11:30">11:30 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="14:00">02:00 PM</option>
+                                    <option value="14:30">02:30 PM</option>
+                                    <option value="15:00">03:00 PM</option>
+                                    <option value="15:30">03:30 PM</option>
+                                    <option value="16:00">04:00 PM</option>
+                                    <option value="16:30">04:30 PM</option>
+                                    <option value="17:00">05:00 PM</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i class="far fa-clock text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Appointment Type -->
+                    <div>
+                        <label for="appointment_type" class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+                        <div class="relative">
+                            <select id="appointment_type" name="appointment_type" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                                <option value="general">General Consultation</option>
+                                <option value="followup">Follow-up</option>
+                                <option value="emergency">Emergency</option>
+                                <option value="routine">Routine Checkup</option>
+                                <option value="vaccination">Vaccination</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notes -->
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                        <textarea id="notes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="pt-2">
+                        <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                            Book Appointment
+                        </button>
+                    </div>
                 </div>
-                <button class="p-2 rounded-md hover:bg-gray-100 text-gray-500">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+            </form>
+        </div>
+        
+        <!-- Right Column - Doctor Availability -->
+        <div class="w-full md:w-1/2">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Doctor Availability</h3>
+                
+                <div id="availability-calendar" class="overflow-x-auto">
+                    <table class="w-full appointment-calendar">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-1 text-center">Sun</th>
+                                <th class="py-2 px-1 text-center">Mon</th>
+                                <th class="py-2 px-1 text-center">Tue</th>
+                                <th class="py-2 px-1 text-center">Wed</th>
+                                <th class="py-2 px-1 text-center">Thu</th>
+                                <th class="py-2 px-1 text-center">Fri</th>
+                                <th class="py-2 px-1 text-center">Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-1"></td>
+                                <td class="p-1"></td>
+                                <td class="p-1"></td>
+                                <td class="p-1"></td>
+                                <td class="p-1"></td>
+                                <td class="p-1 today">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">1</div>
+                                    <span class="appointment-badge bg-blue-100 text-blue-800">3 slots</span>
+                                    <span class="appointment-badge bg-green-100 text-green-800">2 slots</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">2</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">3</div>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">4</div>
+                                    <span class="appointment-badge bg-blue-100 text-blue-800">5 slots</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">5</div>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">6</div>
+                                    <span class="appointment-badge bg-blue-100 text-blue-800">1 slot</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">7</div>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">8</div>
+                                    <span class="appointment-badge bg-green-100 text-green-800">4 slots</span>
+                                </td>
+                                <td class="p-1">
+                                    <div class="text-right text-xs px-1 py-0.5 font-medium">9</div>
+                                </td>
+                            </tr>
+                            <!-- More rows would be here in a real implementation -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
-            <!-- Doctor/Patient Filter -->
-            <div class="relative">
-                <select class="w-full pl-4 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm">
-                    <option>All Doctors</option>
-                    <option>Dr. A. K. Sharma</option>
-                    <option>Dr. Priya Gupta</option>
-                    <option>Dr. R. Verma</option>
-                </select>
-            </div>
-
-            <!-- View Toggles -->
-            <div class="flex items-center justify-center md:justify-end space-x-1 bg-gray-100 p-1 rounded-lg">
-                <button class="px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white rounded-md">Day</button>
-                <button class="px-3 py-1 text-sm font-medium text-white bg-primary rounded-md shadow">Week</button>
-                <button class="px-3 py-1 text-sm font-medium text-gray-600 hover:bg-white rounded-md">Month</button>
+            <!-- Upcoming Appointments -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Today's Appointments</h3>
+                
+                <div class="space-y-3">
+                    {% for appointment in todays_appointments %}
+                    <div class="flex items-start p-3 border border-gray-100 rounded-lg bg-gray-50">
+                        <div class="flex-shrink-0 w-10 h-10 bg-primary-light rounded-full flex items-center justify-center text-primary mr-3 mt-1">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ appointment.patient.full_name }}</p>
+                            <p class="text-xs text-gray-500">With Dr. {{ appointment.doctor.user.full_name }}</p>
+                            <div class="flex items-center mt-1">
+                                <i class="far fa-clock text-xs text-gray-400 mr-1"></i>
+                                <span class="text-xs font-medium text-gray-700">{{ appointment.time|time:"h:i A" }}</span>
+                                <span class="mx-2 text-gray-300">|</span>
+                                <span class="text-xs text-gray-500">{{ appointment.get_type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 ml-2">
+                            <button class="p-1 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-gray-500">
+                        <i class="far fa-calendar-check text-2xl mb-2"></i>
+                        <p>No appointments scheduled for today</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Weekly Calendar View -->
-    <div class="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200 animate-fade-in delay-100">
-        <table class="min-w-full appointment-calendar">
-            <thead>
-                <tr>
-                    <th class="p-2 border-b w-24">Time</th>
-                    {% for day in days %}
-                        <th class="p-2 border-b {% if forloop.counter0 == today_index %}today{% endif %}">{{ day }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for hour, appointments_for_hour in calendar_grid.items %}
-                <tr>
-                    <!-- Time Column -->
-                    <td class="p-1 text-xs text-gray-500 text-right pr-2 border-r align-top">
-                        <span class="block mt-1">
-                            {{ hour }}:00 {% if hour < 12 %}AM{% else %}PM{% endif %}
-                        </span>
-                    </td>
-                    
-                    <!-- Day Columns -->
-                    {% for appointment in appointments_for_hour %}
-                    <td class="p-1 {% if forloop.counter0 == today_index %}today{% endif %}">
-                        {% if appointment %}
-                            <!-- Appointment Badge -->
-                            <div class="p-1 rounded cursor-pointer hover:bg-opacity-80
-                                {% if appointment.type == 'check-up' %} bg-blue-100 text-blue-800
-                                {% elif appointment.type == 'urgent' %} bg-red-100 text-red-800
-                                {% elif appointment.type == 'follow-up' %} bg-green-100 text-green-800
-                                {% endif %}">
-                                <p class="text-xs font-semibold truncate">{{ appointment.patient }}</p>
-                                <p class="text-xs opacity-70 truncate">{{ appointment.type|title }}</p>
-                            </div>
-                        {% endif %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 </div>
 
-
 {% endblock content %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Doctor selection change handler
+    document.getElementById('doctor').addEventListener('change', function() {
+        // In a real implementation, this would fetch the doctor's availability
+        console.log('Doctor selected:', this.value);
+    });
+    
+    // Date selection change handler
+    document.getElementById('date').addEventListener('change', function() {
+        // In a real implementation, this would update the available time slots
+        console.log('Date selected:', this.value);
+    });
+    
+    // Form submission handler
+    document.getElementById('appointment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // In a real implementation, this would submit the form via AJAX or regular form submission
+        console.log('Form submitted');
+        alert('Appointment booked successfully!');
+        this.reset();
+    });
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').setAttribute('min', today);
+});
+</script>
+{% endblock scripts %}

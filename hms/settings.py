@@ -47,6 +47,8 @@ SHARED_APPS = (
 
 TENANT_APPS = [
     'dashboard',   
+    'appointments',
+    'patient',
 ]
 
 INSTALLED_APPS = list(SHARED_APPS) + list(TENANT_APPS)
