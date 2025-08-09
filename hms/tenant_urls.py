@@ -5,6 +5,7 @@ from patient.views import *
 from appointments.views import *
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', home_tenant, name='Dashboard'),
     path('logout/', user_logout, name='user_logout'),
     path('appointments/', appointements, name='Appointments'),

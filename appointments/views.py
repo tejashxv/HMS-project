@@ -8,9 +8,6 @@ import datetime
 # Create your views here.
 def appointements(request):
     doctors = Doctor.objects.all()
-
-    # Define the time slots for the rows
-    # time_slots = [f"{hour}:00" for hour in range(7, 19)] # 7 AM to 6 PM
     time_slots = range(7, 19)
 
     # Get the current week's date range
