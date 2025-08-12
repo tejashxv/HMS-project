@@ -28,9 +28,11 @@ class Appointment(models.Model):
         ('SCHEDULED', 'Scheduled'),
         ('COMPLETED', 'Completed'),
         ('CANCELLED', 'Cancelled'),
-        ('NO_SHOW', 'No Show'),
+        ('RESCHEDULED', 'Rescheduled'),
+        ('PENDING', 'Pending'),
+        ('CONFIRMED', 'Confirmed'),
     ]
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='SCHEDULED')
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='SCHEDULED')
     
     reason_for_visit = models.TextField(help_text="The primary reason for the appointment.")
     

@@ -16,19 +16,10 @@ def appointements(request):
     week_dates = [start_of_week + datetime.timedelta(days=i) for i in range(7)]
 
     # Fetch all appointments for the current week
-    appointments = Appointment.objects.filter(
-        start_time__date__range=[start_of_week, week_dates[-1]]
-    ).select_related('doctor', 'patient')
+    appointments = Appointment.STATUS_CHOICES
+    print(appointments)
+    
 
-    # Create a structured dictionary for the template
-    # Format: calendar[doctor_id][date][hour] = appointment
-    calendar = {doctor.user.id: {date: {} for date in week_dates} for doctor in doctors}
-
-    for appt in appointments:
-        appt_date = appt.start_time.date()
-        appt_hour = appt.start_time.hour
-        if appt.doctor.user.id in calendar and appt_date in calendar[appt.doctor.user.id]:
-            calendar[appt.doctor.user.id][appt_date][appt_hour] = appt
     
 
     context = {
@@ -37,6 +28,6 @@ def appointements(request):
         'doctors': doctors,
         'week_dates': week_dates,
         'time_slots': time_slots,
-        'calendar': calendar,
+        'appointments': appointments,
     }
     return render(request, 'login_main/appointment.html', context)

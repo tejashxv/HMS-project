@@ -41,10 +41,11 @@
             </div>
             
             <form id="appointment-form" method="post">
-                {% csrf_token %}
-                <div class="space-y-4">
-                    <!-- Patient Selection with Search -->
-                    <div>
+    {% csrf_token %}
+    <div class="space-y-4">
+
+        <!-- Patient -->
+        <div>
                         <label for="patient" class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
                         <div class="relative">
                             <input type="text" id="patient-search" placeholder="Search patient..." 
@@ -64,112 +65,59 @@
                             <a href="#" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
                         </div>
                     </div>
-                    
-                    <!-- Doctor Selection with Specialization Filter -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label for="doctor" class="block text-sm font-medium text-gray-700">Doctor</label>
-                            <div class="relative">
-                                <select id="specialization-filter" class="text-xs border border-gray-200 rounded px-2 py-1 outline-none">
-                                    <option value="">All Specializations</option>
-                                    <option value="Cardiology">Cardiology</option>
-                                    <option value="Dermatology">Dermatology</option>
-                                    <option value="Pediatrics">Pediatrics</option>
-                                    <option value="Neurology">Neurology</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <select id="doctor" name="doctor" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                                <option value="">Select Doctor</option>
-                                {% for doctor in doctors %}
-                                <option value="{{ doctor.id }}" data-specialization="{{ doctor.specialization }}">
-                                    Dr. {{ doctor.user.full_name }} ({{ doctor.specialization }})
-                                </option>
-                                {% endfor %}
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fas fa-chevron-down text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Date and Time with Smart Suggestions -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <div class="relative">
-                                <input type="date" id="date" name="date" min="{{ today|date:'Y-m-d' }}" 
-                                       class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="far fa-calendar text-gray-400"></i>
-                                </div>
-                            </div>
-                            <div class="flex space-x-2 mt-1">
-                                <button type="button" data-days="0" class="date-suggestion-btn text-xs px-2 py-1 border rounded hover:bg-gray-50">Today</button>
-                                <button type="button" data-days="1" class="date-suggestion-btn text-xs px-2 py-1 border rounded hover:bg-gray-50">Tomorrow</button>
-                                <button type="button" data-days="7" class="date-suggestion-btn text-xs px-2 py-1 border rounded hover:bg-gray-50">Next Week</button>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                            <div class="relative">
-                                <select id="time" name="time" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                                    <option value="">Select Time</option>
-                                    {% for hour in "09:00,09:30,10:00,10:30,11:00,11:30,12:00,14:00,14:30,15:00,15:30,16:00,16:30,17:00"|split:"," %}
-                                    <option value="{{ hour }}">{{ hour|time:"h:i A" }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <i class="far fa-clock text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Appointment Type with Icons -->
-                    <div>
-                        <label for="appointment_type" class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
-                        <div class="relative">
-                            <select id="appointment_type" name="appointment_type" class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                                <option value="general"><i class="fas fa-stethoscope mr-2"></i> General Consultation</option>
-                                <option value="followup"><i class="fas fa-redo mr-2"></i> Follow-up</option>
-                                <option value="emergency"><i class="fas fa-ambulance mr-2"></i> Emergency</option>
-                                <option value="routine"><i class="fas fa-heartbeat mr-2"></i> Routine Checkup</option>
-                                <option value="vaccination"><i class="fas fa-syringe mr-2"></i> Vaccination</option>
-                                <option value="other"><i class="fas fa-notes-medical mr-2"></i> Other</option>
-                            </select>
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <i class="fas fa-tag text-gray-400"></i>
-                            </div>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                <i class="fas fa-chevron-down text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Notes with Character Counter -->
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                            <span id="notes-counter" class="text-xs text-gray-500">0/200</span>
-                        </div>
-                        <textarea id="notes" name="notes" rows="3" maxlength="200" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
-                    </div>
-                    
-                    <!-- Submit Button with Loading State -->
-                    <div class="pt-2">
-                        <button type="submit" id="submit-btn" class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 px-4 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center justify-center">
-                            <span id="submit-text">Book Appointment</span>
-                            <svg id="submit-spinner" class="hidden w-5 h-5 ml-2 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+
+        <!-- Doctor -->
+        <div>
+            <label for="doctor" class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+            <select id="doctor" name="doctor" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                <option value="">Select Doctor</option>
+                {% for doctor in doctors %}
+                <option value="{{ doctor.id }}">Dr. {{ doctor.user.first_name }} ({{ doctor.specialization }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Start Time -->
+        <div>
+            <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+            <input type="datetime-local" id="start_time" name="start_time"
+                   class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+        </div>
+
+        <!-- End Time -->
+        <div>
+            <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+            <input type="datetime-local" id="end_time" name="end_time"
+                   class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+        </div>
+
+        <!-- Status -->
+        <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select id="status" name="status" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                {% for key, value in appointments %}
+                <option value="{{ key }}">{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Reason for Visit -->
+        <div>
+            <label for="reason_for_visit" class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
+            <textarea id="reason_for_visit" name="reason_for_visit" rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="pt-2">
+            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 px-4 rounded-lg font-medium transition-colors">
+                Book Appointment
+            </button>
+        </div>
+
+    </div>
             </form>
+
         </div>
         
         <!-- Right Column - Enhanced Features -->
