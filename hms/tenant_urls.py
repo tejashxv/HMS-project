@@ -10,4 +10,5 @@ urlpatterns = [
     path('logout/', user_logout, name='user_logout'),
     path('appointments/', appointements, name='Appointments'),
     path('patients/', patient, name='Patients'),
+    path('add_patient/', add_patient, name='AddPatient'),
 ]

@@ -37,6 +37,16 @@ class Patient(models.Model):
         blank=True,
         related_name='patient_profile'
     )
-
+    
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('pending', 'Pending'),
+        ('suspended', 'Suspended'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending', help_text="Patient's current status")
+    last_visit_date = models.DateField(default=None, blank=True, null=True, help_text="Date of the last visit to the hospital")
+    reason = models.TextField(blank=True, null=True, help_text="Reason for the last visit or any additional notes")
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.hospital_patient_id})"

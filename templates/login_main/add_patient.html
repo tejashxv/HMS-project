@@ -1,0 +1,171 @@
+{% extends "login_main/base/base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <!-- Form Header -->
+        <div class="bg-primary-light px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-user-plus mr-2 text-primary"></i>
+                    Add New Patient
+                </h2>
+                <a href="{% url 'Patients' %}" class="text-sm text-primary hover:underline flex items-center">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Patients
+                </a>
+            </div>
+        </div>
+        
+        <!-- Patient Form -->
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-id-card mr-2 text-primary"></i>
+                    Patient Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
+                        <input type="text" id="first_name" name="first_name" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
+                        <input type="text" id="last_name" name="last_name" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700 mb-1">Gender*</label>
+                        <select id="gender" name="gender" required
+                                class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                            <option value="">Select Gender</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div>
+                        <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth*</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth" required
+                               class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Blood Group -->
+                    <div>
+                        <label for="blood_group" class="block text-sm font-medium text-gray-700 mb-1">Blood Group</label>
+                        <select id="blood_group" name="blood_group"
+                                class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                                        <!-- registration_date -->
+                    <div>
+                        <label for="registration_date" class="block text-sm font-medium text-gray-700 mb-1">Registration date</label>
+                        <input type="date" id="registration_date" name="registration_date" required
+                               class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-address-book mr-2 text-primary"></i>
+                    Contact Information
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Phone Number -->
+                    <div>
+                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+                        <input type="tel" id="phone_number" name="phone_number" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="email" name="email"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <textarea id="address" name="address" rows="2"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact -->
+            <div class="mb-8">
+                <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2 text-primary"></i>
+                    Emergency Contact
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Emergency Contact Name -->
+                    <div>
+                        <label for="emergency_contact_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                        <input type="text" id="emergency_contact_name" name="emergency_contact_name" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+
+                    <!-- Emergency Contact Phone -->
+                    <div>
+                        <label for="emergency_contact_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone*</label>
+                        <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button type="reset" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    Reset Form
+                </button>
+                <button type="submit" class="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 flex items-center">
+                    <i class="fas fa-save mr-2"></i> Save Patient
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date of birth max date (today)
+        const dobInput = document.getElementById('date_of_birth');
+        if (dobInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dobInput.setAttribute('max', today);
+        }
+    });
+</script>
+{% endblock scripts %}
