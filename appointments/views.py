@@ -19,7 +19,9 @@ def appointements(request):
     appointments = Appointment.STATUS_CHOICES
     print(appointments)
     
-
+    app = Appointment.objects.all()
+    print(app)
+    
     
 
     context = {
@@ -29,5 +31,6 @@ def appointements(request):
         'week_dates': week_dates,
         'time_slots': time_slots,
         'appointments': appointments,
+        'patient' : app
     }
     return render(request, 'login_main/appointment.html', context)

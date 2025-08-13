@@ -2,6 +2,9 @@
 {% load custom_filters %}
 
 {% block extra_style %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
+
 <style>
     .doctor-availability {
         max-height: 300px;
@@ -62,7 +65,7 @@
                                 <option value="{{ patient.id }}">{{ patient.full_name }} ({{ patient.phone_number }})</option>
                                 {% endfor %}
                             </select>
-                            <a href="#" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
+                            <a href="{% url 'AddPatient' %}" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
                         </div>
                     </div>
 
@@ -273,7 +276,12 @@
                 </div>
             </div>
         </div>
+        
     </div>
+    <div id="calendar"></div>
+    {% for p in patient %}
+    <div >title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date }}', end: '{{ p.end_time.date }}' </div>
+    {% endfor %}
 </div>
 {% endblock content %}
 
@@ -413,4 +421,57 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const calendarEl = document.getElementById('calendar');
+  
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+        },
+        editable: true,
+        selectable: true,
+        selectHelper: true, // shows selection highlight
+  
+        // Allow adding events by clicking a date
+        dateClick: function(info) {
+          let title = prompt('Enter Task Title:');
+          if (title) {
+            calendar.addEvent({
+              title: title,
+              start: info.date,
+              allDay: true
+            });
+          }
+        },
+  
+        // Also allow selecting a range to create multi-day events
+        select: function(info) {
+          let title = prompt('Enter Event Title:');
+          if (title) {
+            calendar.addEvent({
+              title: title,
+              start: info.start,
+              end: info.end,
+              allDay: info.allDay
+            });
+          }
+        },
+  
+        // Example initial events
+        events: [
+          {% for p in patient %}
+          { title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date:"Y-m-d"  }}', end: '{{ p.end_time|date:"Y-m-d"  }}' },
+          {% endfor %}
+        ]
+      });
+  
+      calendar.render();
+    });
+  </script>
+    
 {% endblock scripts %}
