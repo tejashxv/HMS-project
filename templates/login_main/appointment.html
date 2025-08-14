@@ -44,7 +44,29 @@
             </div>
             
             <form id="appointment-form" method="post">
-    {% csrf_token %}
+                {% csrf_token %}
+                 {% if messages %}
+                    <div class="fixed top-5 right-5 z-50 space-y-2 max-w-sm w-full">
+                        {% for message in messages %}
+                        <div
+                            class="
+                                px-4 py-3 rounded-lg shadow-lg text-sm font-medium
+                                {% if message.tags == 'success' %}
+                                    bg-green-100 text-green-800 border border-green-300
+                                {% elif message.tags == 'error' %}
+                                    bg-red-100 text-red-800 border border-red-300
+                                {% elif message.tags == 'warning' %}
+                                    bg-yellow-100 text-yellow-800 border border-yellow-300
+                                {% else %}
+                                    bg-blue-100 text-blue-800 border border-blue-300
+                                {% endif %}
+                            "
+                        >
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
     <div class="space-y-4">
 
         <!-- Patient -->
@@ -465,7 +487,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Example initial events
         events: [
           {% for p in patient %}
-          { title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date:"Y-m-d"  }}', end: '{{ p.end_time|date:"Y-m-d"  }}' },
+          { title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date:"Y-m-d H:i:s"  }}', end: '{{ p.end_time|date:"Y-m-d H:i:s"  }}' },
           {% endfor %}
         ]
       });

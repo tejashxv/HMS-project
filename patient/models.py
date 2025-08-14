@@ -44,11 +44,13 @@ class Patient(models.Model):
         ('CANCELLED', 'Cancelled'),
         ('RESCHEDULED', 'Rescheduled'),
         ('PENDING', 'Pending'),
-        ('CONFIRMED', 'Confirmed'),
     ]
-    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending', help_text="Patient's current status")
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='PENDING', help_text="Patient's current status")
     last_visit_date = models.DateField(default=None, blank=True, null=True, help_text="Date of the last visit to the hospital")
     reason = models.TextField(blank=True, null=True, help_text="Reason for the last visit or any additional note")
     
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.hospital_patient_id})"
+    
+
+    

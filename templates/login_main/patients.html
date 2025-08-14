@@ -1,386 +1,293 @@
-{% extends "login_main/base/base.html" %}
-
-{% block content %}
+{% extends "login_main/base/base.html" %} {% block content %}
 <div class="max-w-7xl mx-auto">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+  <!-- Page Header -->
+  <div
+    class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6"
+  >
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+        <i class="fas fa-user-injured mr-2 text-primary"></i>
+        Patient Management
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">
+        View and manage all patient records
+      </p>
+    </div>
+    <a
+      href="{% url 'AddPatient' %}"
+      class="mt-4 md:mt-0 px-4 py-2 bg-primary hover:bg-primary-dark text-black rounded-lg font-medium flex items-center"
+    >
+      <i class="fas fa-plus mr-2"></i> Add New Patient
+    </a>
+  </div>
+  {% if messages %}
+  <div class="fixed top-5 right-5 z-50 space-y-2 max-w-sm w-full">
+    {% for message in messages %}
+    <div
+      class="px-4 py-3 rounded-lg shadow-lg text-sm font-medium {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-300 {% elif message.tags == 'error' %} bg-red-100 text-red-800 border border-red-300 {% elif message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-300 {% else %} bg-blue-100 text-blue-800 border border-blue-300 {% endif %}"
+    >
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Patient Search and Filters -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Search -->
+      <div class="md:col-span-2">
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search patients..."
+            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+          />
+          <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <select
+          class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
+        >
+          <option value="">All Statuses</option>
+          <option value="SCHEDULED">SCHEDULED</option>
+          <option value="COMPLETED">COMPLETED</option>
+          <option value="CANCELLED">CANCELLED</option>
+          <option value="RESCHEDULED">RESCHEDULED</option>
+          <option value="PENDING">PENDING</option>
+        </select>
+      </div>   
+
+      <!-- Date Filter -->
+      <div>
+        <select
+          class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
+        >
+          <option value="">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center justify-between">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                <i class="fas fa-user-injured mr-2 text-primary"></i>
-                Patient Management
-            </h2>
-            <p class="text-sm text-gray-500 mt-1">View and manage all patient records</p>
+          <p class="text-sm font-medium text-gray-500">Total Patients</p>
+          <p class="text-2xl font-bold mt-1">{{total_patients}}</p>
         </div>
-        <a href="{% url 'AddPatient' %}" class="mt-4 md:mt-0 px-4 py-2 bg-primary hover:bg-primary-dark text-black rounded-lg font-medium flex items-center">
-            <i class="fas fa-plus mr-2"></i> Add New Patient
-        </a>
+        <div class="bg-primary-light p-3 rounded-full">
+          <i class="fas fa-users text-primary text-xl"></i>
+        </div>
+      </div>
     </div>
 
-    <!-- Patient Search and Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Search -->
-            <div class="md:col-span-2">
-                <div class="relative">
-                    <input type="text" placeholder="Search patients..." 
-                           class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
-            </div>
-            
-            <!-- Status Filter -->
-            <div>
-                <select class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                    <option value="">All Statuses</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="archived">Archived</option>
-                </select>
-            </div>
-            
-            <!-- Date Filter -->
-            <div>
-                <select class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                    <option value="">All Time</option>
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="year">This Year</option>
-                </select>
-            </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">New This Month</p>
+          <p class="text-2xl font-bold mt-1">{{new_this_month}}</p>
         </div>
+        <div class="bg-green-100 p-3 rounded-full">
+          <i class="fas fa-user-plus text-green-600 text-xl"></i>
+        </div>
+      </div>
     </div>
 
-    <!-- Patient Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Total Patients</p>
-                    <p class="text-2xl font-bold mt-1">1,248</p>
-                </div>
-                <div class="bg-primary-light p-3 rounded-full">
-                    <i class="fas fa-users text-primary text-xl"></i>
-                </div>
-            </div>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-gray-500">Upcoming Appointments</p>
+          <p class="text-2xl font-bold mt-1">{{upcoming_appointments}}</p>
         </div>
-        
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">New This Month</p>
-                    <p class="text-2xl font-bold mt-1">87</p>
-                </div>
-                <div class="bg-green-100 p-3 rounded-full">
-                    <i class="fas fa-user-plus text-green-600 text-xl"></i>
-                </div>
-            </div>
+        <div class="bg-blue-100 p-3 rounded-full">
+          <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
         </div>
-        
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Upcoming Appointments</p>
-                    <p class="text-2xl font-bold mt-1">42</p>
-                </div>
-                <div class="bg-blue-100 p-3 rounded-full">
-                    <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Pending Tests</p>
-                    <p class="text-2xl font-bold mt-1">15</p>
-                </div>
-                <div class="bg-yellow-100 p-3 rounded-full">
-                    <i class="fas fa-flask text-yellow-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <!-- Patient Table -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Patient ID
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Contact
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Last Visit
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Sample Patient Row 1 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            PT-1001
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=John+Doe&background=ecfeff&color=0e7490" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                    <div class="text-sm text-gray-500">Male, 35 years</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            john.doe@example.com<br>
-                            (555) 123-4567
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            May 15, 2023<br>
-                            <span class="text-xs text-primary">Follow-up</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-primary hover:text-primary-dark">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+  </div>
 
-                    <!-- Sample Patient Row 2 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            PT-1002
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Jane+Smith&background=ecfeff&color=0e7490" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Jane Smith</div>
-                                    <div class="text-sm text-gray-500">Female, 42 years</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            jane.smith@example.com<br>
-                            (555) 987-6543
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            June 2, 2023<br>
-                            <span class="text-xs text-primary">Routine Checkup</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-primary hover:text-primary-dark">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Sample Patient Row 3 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            PT-1003
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Robert+Johnson&background=ecfeff&color=0e7490" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Robert Johnson</div>
-                                    <div class="text-sm text-gray-500">Male, 58 years</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            robert.j@example.com<br>
-                            (555) 456-7890
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            April 28, 2023<br>
-                            <span class="text-xs text-primary">Emergency</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                Pending Tests
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-primary hover:text-primary-dark">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- Sample Patient Row 4 -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            PT-1004
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=Sarah+Williams&background=ecfeff&color=0e7490" alt="">
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Sarah Williams</div>
-                                    <div class="text-sm text-gray-500">Female, 29 years</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            sarah.w@example.com<br>
-                            (555) 789-0123
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            March 10, 2023<br>
-                            <span class="text-xs text-primary">Vaccination</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                Inactive
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end space-x-2">
-                                <a href="#" class="text-primary hover:text-primary-dark">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="#" class="text-blue-600 hover:text-blue-800">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="#" class="text-red-600 hover:text-red-800">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Pagination -->
-        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div class="flex-1 flex justify-between sm:hidden">
-                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Previous
-                </a>
-                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                    Next
-                </a>
-            </div>
-            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-sm text-gray-700">
-                        Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">1248</span> patients
-                    </p>
+  <!-- Patient Table -->
+  <div
+    class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+  >
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Patient ID
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Name
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Contact
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Last Visit
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <!-- Sample Patient Row 1 -->
+           {% for patient in page_obj %}
+          <tr class="hover:bg-gray-50">
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+            >
+              {{patient.hospital_patient_id}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10">
+                  <img
+                    class="h-10 w-10 rounded-full"
+                    src="https://ui-avatars.com/api/?name=John+Doe&background=ecfeff&color=0e7490"
+                    alt=""
+                  />
                 </div>
-                <div>
-                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Previous</span>
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                        <a href="#" aria-current="page" class="z-10 bg-primary-light border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            1
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            2
-                        </a>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            3
-                        </a>
-                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                            ...
-                        </span>
-                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                            25
-                        </a>
-                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span class="sr-only">Next</span>
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </nav>
-                  </div>
+                <div class="ml-4">
+                  <div class="text-sm font-medium text-gray-900">{{patient.first_name}} {{patient.last_name}}</div>
+                  <div class="text-sm text-gray-500">{{patient.gender}}, {{patient.date_of_birth}}</div>
                 </div>
               </div>
-            </div>
-          </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{patient.email}}<br />
+              {{patient.phone_number}}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{patient.last_visit_date}}<br />
+              <span class="text-xs text-primary">{{patient.reason}}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+              >
+                {{patient.status}}
+              </span>
+            </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+            >
+              <div class="flex justify-end space-x-2">
+                <a href="#" class="text-primary hover:text-primary-dark">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="#" class="text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <a href="{% url 'DeletePatient' patient.hospital_patient_id %}" class="text-red-600 hover:text-red-800">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+           {% endfor %}
           
-{% endblock content %}
+        </tbody>
+      </table>
+    </div>
 
-{% block scripts %}
-  
+    <!-- Pagination -->
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <p class="text-sm text-gray-700">
+                Showing 
+                <span class="font-medium">{{ page_obj.start_index }}</span> 
+                to 
+                <span class="font-medium">{{ page_obj.end_index }}</span> 
+                of 
+                <span class="font-medium">{{ page_obj.paginator.count }}</span> patients
+            </p>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% endif %}
+            
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="z-10 bg-primary-light border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+               
+            </nav>
+        </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %} {% block scripts %}
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     // Search functionality would be implemented here
-    const searchInput = document.querySelector('input[placeholder="Search patients..."]');
-    searchInput.addEventListener('input', function(e) {
+    const searchInput = document.querySelector(
+      'input[placeholder="Search patients..."]'
+    );
+    searchInput.addEventListener("input", function (e) {
       const searchTerm = e.target.value.toLowerCase();
-      console.log('Searching for:', searchTerm);
+      console.log("Searching for:", searchTerm);
       // In a real implementation, you would filter the table rows or make an API call
     });
-    
+
     // Status filter functionality
-    const statusFilter = document.querySelector('select');
-    statusFilter.addEventListener('change', function(e) {
-      console.log('Filter by status:', e.target.value);
+    const statusFilter = document.querySelector("select");
+    statusFilter.addEventListener("change", function (e) {
+      console.log("Filter by status:", e.target.value);
       // In a real implementation, you would filter the table rows
     });
-    
+
     // Date filter functionality
-    const dateFilter = document.querySelectorAll('select')[1];
-    dateFilter.addEventListener('change', function(e) {
-      console.log('Filter by date range:', e.target.value);
+    const dateFilter = document.querySelectorAll("select")[1];
+    dateFilter.addEventListener("change", function (e) {
+      console.log("Filter by date range:", e.target.value);
       // In a real implementation, you would filter the table rows
     });
   });

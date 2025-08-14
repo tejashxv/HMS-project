@@ -11,4 +11,5 @@ urlpatterns = [
     path('appointments/', appointements, name='Appointments'),
     path('patients/', patient, name='Patients'),
     path('add_patient/', add_patient, name='AddPatient'),
+    path('delete_patient/<str:patient_id>/', delete_patient, name='DeletePatient'),
 ]
