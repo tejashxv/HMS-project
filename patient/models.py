@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.postgres.indexes import GinIndex
 
 class Patient(models.Model):
     """
@@ -54,3 +55,9 @@ class Patient(models.Model):
     
 
     
+    class Meta:
+        indexes = [
+            GinIndex(fields=['hospital_patient_id']),
+            GinIndex(fields=['first_name']),
+            GinIndex(fields=['last_name']),
+        ]

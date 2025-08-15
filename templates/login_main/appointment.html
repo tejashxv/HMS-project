@@ -83,9 +83,7 @@
                         <div class="mt-2">
                             <select id="patient" name="patient" class="hidden w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
                                 <option value="">Select Patient</option>
-                                {% for patient in patients %}
-                                <option value="{{ patient.id }}">{{ patient.full_name }} ({{ patient.phone_number }})</option>
-                                {% endfor %}
+                                
                             </select>
                             <a href="{% url 'AddPatient' %}" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
                         </div>
@@ -135,7 +133,7 @@
 
         <!-- Submit -->
         <div class="pt-2">
-            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white py-2.5 px-4 rounded-lg font-medium transition-colors">
+            <button type="submit" class="w-full bg-primary border border-gray-300 hover:bg-primary-dark text-black py-2.5 px-4 rounded-lg font-medium transition-colors">
                 Book Appointment
             </button>
         </div>
@@ -494,6 +492,86 @@ document.addEventListener('DOMContentLoaded', function() {
   
       calendar.render();
     });
+
+
+
+    // search 
+    document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("patient-search");
+    const resultsDiv = document.getElementById("patient-search-results");
+    const selectElement = document.getElementById("patient");
+
+    let debounceTimer;
+    searchInput.addEventListener("input", function () {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            resultsDiv.classList.add("hidden");
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetch(`/search-patients/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = "";
+                    if (data.length > 0) {
+                        data.forEach(patient => {
+                            const item = document.createElement("div");
+                            item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
+                            item.textContent = `${patient.hospital_patient_id}- ${patient.first_name} ${patient.last_name} (${patient.phone_number})`;
+                            item.onclick = () => {
+                                selectElement.innerHTML = "";
+
+                                // Add the selected patient as an option
+                                const option = document.createElement("option");
+                                option.value = patient.hospital_patient_id;
+                                option.textContent = `${patient.first_name} ${patient.last_name}`;
+                                option.selected = true;
+                                selectElement.appendChild(option);
+
+                                // Update search input display
+                                searchInput.value = `${patient.first_name} ${patient.last_name}`;
+                                resultsDiv.classList.add("hidden");
+                            };
+                            resultsDiv.appendChild(item);
+                        });
+                        resultsDiv.classList.remove("hidden");
+                    } else {
+                        resultsDiv.innerHTML = `<div class="px-4 py-2 text-gray-500">No results found</div>`;
+                        resultsDiv.classList.remove("hidden");
+                    }
+                });
+        }, 300); // Debounce delay
+    });
+});
+
+
+// quick lookup
+document.getElementById("patient-search-input").addEventListener("input", function () {
+    let query = this.value.trim();
+    if (query.length < 2) return;
+
+    fetch(`/quick-patient-lookup/?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+            let dropdown = document.getElementById("search-results");
+            dropdown.innerHTML = "";
+
+            data.forEach(patient => {
+                let item = document.createElement("div");
+                item.className = "search-item";
+                item.textContent = `${patient.first_name} ${patient.last_name} (${patient.hospital_patient_id})`;
+                item.onclick = () => window.location.href = patient.profile_url;
+                dropdown.appendChild(item);
+            });
+        });
+});
+
+
+
+
   </script>
     
 {% endblock scripts %}
