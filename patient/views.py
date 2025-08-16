@@ -20,6 +20,7 @@ def patient(request):
         today = timezone.now().date()
         end_of_week = today + timezone.timedelta(days=7)
         upcoming_appointments = Appointment.objects.filter(start_time__range=[today,end_of_week]).count()
+        print(f"Upcoming appointments: {upcoming_appointments}")
         statuses = ['SCHEDULED', 'CANCELLED', 'RESCHEDULED', 'PENDING']
         total_patients = Patient.objects.filter(status__in=statuses).count()
         print(f"Total patients: {total_patients}")

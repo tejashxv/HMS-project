@@ -1,14 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from .models import Appointment
 from patient.models import Patient
 from dashboard.models import Doctor
 import datetime
-# from django.contrib.postgres.search import SearchVector
+from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q
+from django.db.models import Q, Value, CharField
 from django.contrib.postgres.search import TrigramSimilarity
 from django.urls import reverse
+
 
 
 
@@ -26,9 +27,66 @@ def appointements(request):
     appointments = Appointment.STATUS_CHOICES
     app = Appointment.objects.all()
     
+    # Get today's appointments
+    todays_appointments = Appointment.objects.filter(
+        start_time__date=today
+    ).select_related('patient', 'doctor__user').order_by('start_time')
+    
     if request.method == 'POST':
-        patient = request.POST.get('patient')
-        print(patient)
+        patient_id = request.POST.get('patient')
+        doctor_id = request.POST.get('doctor')
+        print(f"Received patient ID: {doctor_id}")
+        # doctor = get_object_or_404(Doctor, user_id=doctor_id)
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        status = request.POST.get('status')
+        reason_for_visit = request.POST.get('reason_for_visit')
+        
+        print(f"Form data received:")
+        print(f"Patient ID: {patient_id}")
+        print(f"Doctor ID: {doctor_id}")
+        print(f"Start Time: {start_time}")
+        print(f"End Time: {end_time}")
+        print(f"Status: {status}")
+        print(f"Reason: {reason_for_visit}")
+        
+        # Validate required fields
+        if not patient_id:
+            print("Error: No patient selected")
+        if not doctor_id:
+            print("Error: No doctor selected")
+        if not start_time:
+            print("Error: No start time provided")
+        if not end_time:
+            print("Error: No end time provided")
+            
+        # Get the actual objects and create appointment
+        if patient_id and doctor_id and start_time and end_time:
+            try:
+                patient = get_object_or_404(Patient, hospital_patient_id=patient_id)
+                doctor = get_object_or_404(Doctor, id=doctor_id)
+                
+                print(f"Patient found: {patient.first_name} {patient.last_name}")
+                print(f"Doctor found: Dr. {doctor.user.first_name} {doctor.user.last_name}")
+                
+                # Create the appointment
+                appointment = Appointment.objects.create(
+                    patient=patient,
+                    doctor=doctor,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status=status or 'scheduled',
+                    reason_for_visit=reason_for_visit or ''
+                )
+                
+                messages.success(request, f'Appointment booked successfully for {patient.first_name} {patient.last_name} with Dr. {doctor.user.first_name} {doctor.user.last_name}')
+                return redirect('Appointments')
+                
+            except Exception as e:
+                print(f"Error creating appointment: {str(e)}")
+                messages.error(request, f"Error creating appointment: {str(e)}")
+        else:
+            messages.error(request, "Please fill in all required fields")
 
     context = {
         'active_page': 'appointments',
@@ -37,7 +95,8 @@ def appointements(request):
         'week_dates': week_dates,
         'time_slots': time_slots,
         'appointments': appointments,
-        'patient' : app
+        'patient': app,
+        'todays_appointments': todays_appointments
     }
     return render(request, 'login_main/appointment.html', context)
 
@@ -97,8 +156,6 @@ def quick_patient_lookup(request):
             Q(first_name__icontains=query) |
             Q(last_name__icontains=query) |
             Q(hospital_patient_id__icontains=query)
-        ).annotate(
-            profile_url=models.Value('', output_field=models.CharField())  # placeholder
         ).values(
             "hospital_patient_id", "first_name", "last_name", "phone_number"
         )
@@ -128,13 +185,18 @@ def quick_patient_lookup(request):
 
         merged = list(exact_matches) + list(fuzzy_matches)
 
-        # Add profile URL
-        results = [
-            {
+        # Add profile URL (if patient detail view exists)
+        results = []
+        for patient in merged[:10]:
+            try:
+                profile_url = reverse("patient_detail", kwargs={"patient_id": patient["hospital_patient_id"]})
+            except:
+                # If patient_detail URL doesn't exist, use patients page or None
+                profile_url = reverse("Patients") if "Patients" else None
+            
+            results.append({
                 **patient,
-                "profile_url": reverse("patient_detail", kwargs={"patient_id": patient["hospital_patient_id"]})
-            }
-            for patient in merged[:10]
-        ]
+                "profile_url": profile_url
+            })
 
     return JsonResponse(results, safe=False)

@@ -81,7 +81,7 @@
                             <!-- Search results will appear here -->
                         </div>
                         <div class="mt-2">
-                            <select id="patient" name="patient" class="hidden w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
+                            <select id="patient" name="patient" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
                                 <option value="">Select Patient</option>
                                 
                             </select>
@@ -95,7 +95,7 @@
             <select id="doctor" name="doctor" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 <option value="">Select Doctor</option>
                 {% for doctor in doctors %}
-                <option value="{{ doctor.id }}">Dr. {{ doctor.user.first_name }} ({{ doctor.specialization }})</option>
+                <option value="{{ doctor.user.first_name }}">Dr. {{ doctor.user.first_name }} ({{ doctor.specialization }})</option>
                 {% endfor %}
             </select>
         </div>
@@ -298,7 +298,7 @@
         </div>
         
     </div>
-    <div id="calendar"></div>
+    <div id="calendar" class="mt-10"></div>
     {% for p in patient %}
     <div >title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date }}', end: '{{ p.end_time.date }}' </div>
     {% endfor %}
@@ -386,29 +386,42 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form submission handler
     document.getElementById('appointment-form').addEventListener('submit', function(e) {
-        e.preventDefault();
+        // Validate form before submission
+        const patient = document.getElementById('patient').value;
+        const doctor = document.getElementById('doctor').value;
+        const startTime = document.getElementById('start_time').value;
+        const endTime = document.getElementById('end_time').value;
         
-        // Show loading state
-        const submitBtn = document.getElementById('submit-btn');
-        const submitText = document.getElementById('submit-text');
-        const submitSpinner = document.getElementById('submit-spinner');
+        if (!patient) {
+            e.preventDefault();
+            alert('Please select a patient');
+            return;
+        }
         
-        submitText.textContent = 'Booking...';
-        submitSpinner.classList.remove('hidden');
-        submitBtn.disabled = true;
+        if (!doctor) {
+            e.preventDefault();
+            alert('Please select a doctor');
+            return;
+        }
         
-        // Simulate API call
-        setTimeout(() => {
-            // Reset form and button state
-            submitText.textContent = 'Book Appointment';
-            submitSpinner.classList.add('hidden');
-            submitBtn.disabled = false;
-            
-            // Show success message
-            alert('Appointment booked successfully!');
-            this.reset();
-            document.getElementById('notes-counter').textContent = '0/200';
-        }, 1500);
+        if (!startTime) {
+            e.preventDefault();
+            alert('Please select a start time');
+            return;
+        }
+        
+        if (!endTime) {
+            e.preventDefault();
+            alert('Please select an end time');
+            return;
+        }
+        
+        // Show loading state (form will submit normally)
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Booking...';
+            submitBtn.disabled = true;
+        }
     });
     
     // Specialization filter
@@ -549,23 +562,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // quick lookup
-document.getElementById("patient-search-input").addEventListener("input", function () {
+document.getElementById("quick-patient-search").addEventListener("input", function () {
     let query = this.value.trim();
-    if (query.length < 2) return;
+    const resultsDiv = document.getElementById("quick-patient-results");
+    const emptyDiv = document.getElementById("quick-patient-empty");
+    
+    if (query.length < 2) {
+        resultsDiv.classList.add("hidden");
+        emptyDiv.classList.add("hidden");
+        return;
+    }
 
-    fetch(`/quick-patient-lookup/?q=${encodeURIComponent(query)}`)
+    fetch(`/quick-patient-search/?q=${encodeURIComponent(query)}`)
         .then(res => res.json())
         .then(data => {
-            let dropdown = document.getElementById("search-results");
-            dropdown.innerHTML = "";
-
-            data.forEach(patient => {
-                let item = document.createElement("div");
-                item.className = "search-item";
-                item.textContent = `${patient.first_name} ${patient.last_name} (${patient.hospital_patient_id})`;
-                item.onclick = () => window.location.href = patient.profile_url;
-                dropdown.appendChild(item);
-            });
+            resultsDiv.innerHTML = "";
+            
+            if (data.length > 0) {
+                data.forEach(patient => {
+                    let item = document.createElement("div");
+                    item.className = "patient-search-result flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer";
+                    item.innerHTML = `
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + '+' + patient.last_name)}&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full mr-3">
+                        <div>
+                            <p class="text-sm font-medium">${patient.first_name} ${patient.last_name}</p>
+                            <p class="text-xs text-gray-500">ID: ${patient.hospital_patient_id} | Phone: ${patient.phone_number || 'N/A'}</p>
+                        </div>
+                    `;
+                    item.onclick = () => {
+                        if (patient.profile_url) {
+                            window.location.href = patient.profile_url;
+                        } else {
+                            // If no profile URL, you could show patient details or navigate to a default patient page
+                            console.log('Selected patient:', patient);
+                        }
+                    };
+                    resultsDiv.appendChild(item);
+                });
+                resultsDiv.classList.remove("hidden");
+                emptyDiv.classList.add("hidden");
+            } else {
+                resultsDiv.classList.add("hidden");
+                emptyDiv.classList.remove("hidden");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching patient data:', error);
+            resultsDiv.classList.add("hidden");
+            emptyDiv.classList.remove("hidden");
         });
 });
 
