@@ -56,7 +56,7 @@ def appointements(request):
         if not doctor_id:
             print("Error: No doctor selected")
         if not start_time:
-            print("Error: No start time provided")
+            print("Error: No start time provide")
         if not end_time:
             print("Error: No end time provided")
             
