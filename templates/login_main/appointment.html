@@ -1,621 +1,782 @@
-{% extends "login_main/base/base.html" %}
-{% load custom_filters %}
-
+{% extends "login_main/base/base.html" %} {% load custom_filters %} 
 {% block extra_style %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" rel="stylesheet" />
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css"
+  rel="stylesheet"
+/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
 
 <style>
-    .doctor-availability {
-        max-height: 300px;
-        overflow-y: auto;
-    }
-    .availability-slot {
-        transition: all 0.2s;
-    }
-    .availability-slot:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    .patient-search-result:hover {
-        background-color: #f8fafc;
-    }
+  .doctor-availability {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .availability-slot {
+    transition: all 0.2s;
+  }
+  .availability-slot:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  .patient-search-result:hover {
+    background-color: #f8fafc;
+  }
+  .time-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  @media (max-width: 768px) {
     .time-slot-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.5rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    @media (max-width: 768px) {
-        .time-slot-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
+  }
 </style>
-{% endblock extra_style %}
-
+{% endblock extra_style %} 
 {% block content %}
 <div class="max-w-6xl mx-auto">
-    <div class="flex flex-col md:flex-row gap-6">
-        <!-- Left Column - Appointment Form (Enhanced) -->
-        <div class="w-full md:w-1/2 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">Book New Appointment</h3>
-                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Step 1 of 2</span>
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Left Column - Appointment Form (Enhanced) -->
+    <div
+      class="w-full md:w-1/2 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">
+          Book New Appointment
+        </h3>
+        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+          >Step 1 of 2</span
+        >
+      </div>
+
+      <form id="appointment-form" method="post">
+        {% csrf_token %} {% if messages %}
+        <div class="fixed top-5 right-5 z-50 space-y-2 max-w-sm w-full">
+          {% for message in messages %}
+          <div
+            class="px-4 py-3 rounded-lg shadow-lg text-sm font-medium {% if message.tags == 'success' %} bg-green-100 text-green-800 border border-green-300 {% elif message.tags == 'error' %} bg-red-100 text-red-800 border border-red-300 {% elif message.tags == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-300 {% else %} bg-blue-100 text-blue-800 border border-blue-300 {% endif %}"
+          >
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <div class="space-y-4">
+          <!-- Patient -->
+          <div>
+            <label
+              for="patient"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Patient</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="patient-search"
+                placeholder="Search patient..."
+                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
+              />
+              <i
+                class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"
+              ></i>
             </div>
-            
-            <form id="appointment-form" method="post">
-                {% csrf_token %}
-                 {% if messages %}
-                    <div class="fixed top-5 right-5 z-50 space-y-2 max-w-sm w-full">
-                        {% for message in messages %}
-                        <div
-                            class="
-                                px-4 py-3 rounded-lg shadow-lg text-sm font-medium
-                                {% if message.tags == 'success' %}
-                                    bg-green-100 text-green-800 border border-green-300
-                                {% elif message.tags == 'error' %}
-                                    bg-red-100 text-red-800 border border-red-300
-                                {% elif message.tags == 'warning' %}
-                                    bg-yellow-100 text-yellow-800 border border-yellow-300
-                                {% else %}
-                                    bg-blue-100 text-blue-800 border border-blue-300
-                                {% endif %}
-                            "
-                        >
-                            {{ message }}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-    <div class="space-y-4">
+            <div
+              id="patient-search-results"
+              class="hidden mt-1 border border-gray-200 rounded-lg max-h-60 overflow-y-auto shadow-sm"
+            >
+              <!-- Search results will appear here -->
+            </div>
+            <div class="mt-2">
+              <select
+                id="patient"
+                name="patient"
+                class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
+              >
+                <option value="">Select Patient</option>
+              </select>
+              <a
+                href="{% url 'AddPatient' %}"
+                class="text-xs text-primary hover:underline mt-1 inline-block"
+                >+ Add new patient</a
+              >
+            </div>
+          </div>
 
-        <!-- Patient -->
-        <div>
-                        <label for="patient" class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
-                        <div class="relative">
-                            <input type="text" id="patient-search" placeholder="Search patient..." 
-                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
-                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
-                        </div>
-                        <div id="patient-search-results" class="hidden mt-1 border border-gray-200 rounded-lg max-h-60 overflow-y-auto shadow-sm">
-                            <!-- Search results will appear here -->
-                        </div>
-                        <div class="mt-2">
-                            <select id="patient" name="patient" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none">
-                                <option value="">Select Patient</option>
-                                
-                            </select>
-                            <a href="{% url 'AddPatient' %}" class="text-xs text-primary hover:underline mt-1 inline-block">+ Add new patient</a>
-                        </div>
-                    </div>
-
-        <!-- Doctor -->
-        <div>
-            <label for="doctor" class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
-            <select id="doctor" name="doctor" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-                <option value="">Select Doctor</option>
-                {% for doctor in doctors %}
-                <option value="{{ doctor.user.first_name }}">Dr. {{ doctor.user.first_name }} ({{ doctor.specialization }})</option>
-                {% endfor %}
+          <!-- Doctor -->
+          <div>
+            <label
+              for="doctor"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Doctor</label
+            >
+            <select
+              id="doctor"
+              name="doctor"
+              class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            >
+              <option value="">Select Doctor</option>
+              {% for doctor in doctors %}
+              <option
+                value="{{ doctor.pk }}"
+                data-specialization="{{ doctor.specialization }}"
+              >
+                Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }} {{
+                doctor.specialization }}
+              </option>
+              {% endfor %}
             </select>
-        </div>
+            <!-- Debug info -->
+            <div class="text-xs text-gray-500 mt-1">
+              Debug: {{ doctors.count }} doctors available
+            </div>
+          </div>
 
-        <!-- Start Time -->
-        <div>
-            <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
-            <input type="datetime-local" id="start_time" name="start_time"
-                   class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-        </div>
+          <!-- Start Time -->
+          <div>
+            <label
+              for="start_time"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Start Time</label
+            >
+            <input
+              type="datetime-local"
+              id="start_time"
+              name="start_time"
+              class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
 
-        <!-- End Time -->
-        <div>
-            <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
-            <input type="datetime-local" id="end_time" name="end_time"
-                   class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-        </div>
+          <!-- End Time -->
+          <div>
+            <label
+              for="end_time"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >End Time</label
+            >
+            <input
+              type="datetime-local"
+              id="end_time"
+              name="end_time"
+              class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
 
-        <!-- Status -->
-        <div>
-            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select id="status" name="status" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
-                {% for key, value in appointments %}
-                <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
+          <!-- Status -->
+          <div>
+            <label
+              for="status"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Status</label
+            >
+            <select
+              id="status"
+              name="status"
+              class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            >
+              {% for key, value in appointments %}
+              <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
             </select>
-        </div>
+          </div>
 
-        <!-- Reason for Visit -->
-        <div>
-            <label for="reason_for_visit" class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
-            <textarea id="reason_for_visit" name="reason_for_visit" rows="3"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
-        </div>
+          <!-- Reason for Visit -->
+          <div>
+            <label
+              for="reason_for_visit"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >Reason for Visit</label
+            >
+            <textarea
+              id="reason_for_visit"
+              name="reason_for_visit"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+            ></textarea>
+          </div>
 
-        <!-- Submit -->
-        <div class="pt-2">
-            <button type="submit" class="w-full bg-primary border border-gray-300 hover:bg-primary-dark text-black py-2.5 px-4 rounded-lg font-medium transition-colors">
-                Book Appointment
+          <!-- Submit -->
+          <div class="pt-2">
+            <button
+              type="submit"
+              class="w-full bg-primary border border-gray-300 hover:bg-primary-dark text-black py-2.5 px-4 rounded-lg font-medium transition-colors"
+            >
+              Book Appointment
             </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Column - Enhanced Features -->
+    <div class="w-full md:w-1/2 space-y-6">
+      <!-- Doctor Availability Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-calendar-check mr-2 text-primary"></i>
+          Doctor Availability
+        </h3>
+
+        <div id="doctor-availability-container">
+          <div class="text-center py-8" id="no-doctor-selected">
+            <i class="fas fa-user-md text-3xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">
+              Select a doctor to view their availability
+            </p>
+          </div>
+
+          <div id="doctor-availability-details" class="hidden">
+            <div class="flex items-center mb-4">
+              <img
+                id="doctor-avatar"
+                src="https://ui-avatars.com/api/?name=Doctor&background=ecfeff&color=0e7490"
+                class="w-10 h-10 rounded-full mr-3"
+              />
+              <div>
+                <h4 id="doctor-name" class="font-medium">Dr. Smith</h4>
+                <p id="doctor-specialty" class="text-xs text-gray-500">
+                  Cardiologist
+                </p>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">
+                Next Available Slots
+              </h4>
+              <div class="time-slot-grid">
+                <button
+                  class="availability-slot bg-green-50 text-green-800 text-xs py-2 px-3 rounded border border-green-100 hover:bg-green-100"
+                >
+                  Today<br />2:30 PM
+                </button>
+                <button
+                  class="availability-slot bg-green-50 text-green-800 text-xs py-2 px-3 rounded border border-green-100 hover:bg-green-100"
+                >
+                  Tomorrow<br />9:00 AM
+                </button>
+                <button
+                  class="availability-slot bg-blue-50 text-blue-800 text-xs py-2 px-3 rounded border border-blue-100 hover:bg-blue-100"
+                >
+                  Wed 12th<br />11:00 AM
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h4 class="text-sm font-medium text-gray-700 mb-2">
+                Schedule for <span id="selected-date">Today</span>
+              </h4>
+              <div class="bg-gray-50 rounded-lg p-3 doctor-availability">
+                <div
+                  class="flex justify-between items-center py-2 border-b border-gray-100"
+                >
+                  <span class="text-sm font-medium">Morning</span>
+                  <span class="text-xs text-gray-500">9:00 AM - 12:00 PM</span>
+                </div>
+                <div class="space-y-2 mt-2">
+                  <div class="flex justify-between items-center text-sm">
+                    <span>9:00 AM</span>
+                    <span
+                      class="badge bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs"
+                      >Available</span
+                    >
+                  </div>
+                  <div class="flex justify-between items-center text-sm">
+                    <span>9:30 AM</span>
+                    <span
+                      class="badge bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs"
+                      >Booked</span
+                    >
+                  </div>
+                  <!-- More time slots would be here -->
+                </div>
+
+                <div
+                  class="flex justify-between items-center py-2 border-b border-gray-100 mt-3"
+                >
+                  <span class="text-sm font-medium">Afternoon</span>
+                  <span class="text-xs text-gray-500">2:00 PM - 5:00 PM</span>
+                </div>
+                <div class="space-y-2 mt-2">
+                  <div class="flex justify-between items-center text-sm">
+                    <span>2:00 PM</span>
+                    <span
+                      class="badge bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs"
+                      >Available</span
+                    >
+                  </div>
+                  <!-- More time slots would be here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Appointments with Status -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-list-ul mr-2 text-primary"></i>
+          Today's Appointments
+        </h3>
+
+        <div class="space-y-3">
+          {% for appointment in todays_appointments %}
+          <div
+            class="flex items-start p-3 border {% if appointment.status == 'completed' %}border-green-100 bg-green-50{% elif appointment.status == 'cancelled' %}border-red-100 bg-red-50{% else %}border-gray-100 bg-gray-50{% endif %} rounded-lg"
+          >
+            <div
+              class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3 mt-1 {% if appointment.status == 'completed' %}bg-green-100 text-green-600 {% elif appointment.status == 'cancelled' %}bg-red-100 text-red-600 {% else %}bg-blue-100 text-blue-600{% endif %}"
+            >
+              <i
+                class="fas {% if appointment.status == 'completed' %}fa-check-circle {% elif appointment.status == 'cancelled' %}fa-times-circle {% else %}fa-calendar-alt{% endif %}"
+              ></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between">
+                <p class="text-sm font-medium text-gray-900 truncate">
+                  {{ appointment.patient.full_name }}
+                </p>
+                <span
+                  class="text-xs px-2 py-0.5 rounded-full {% if appointment.status == 'completed' %}bg-green-100 text-green-800 {% elif appointment.status == 'cancelled' %}bg-red-100 text-red-800 {% else %}bg-blue-100 text-blue-800{% endif %}"
+                >
+                  {{ appointment.get_status_display }}
+                </span>
+              </div>
+              <p class="text-xs text-gray-500">
+                With Dr. {{ appointment.doctor.user.full_name }}
+              </p>
+              <div class="flex items-center mt-1">
+                <i class="far fa-clock text-xs text-gray-400 mr-1"></i>
+                <span class="text-xs font-medium text-gray-700"
+                  >{{ appointment.time|time:"h:i A" }}</span
+                >
+                <span class="mx-2 text-gray-300">|</span>
+                <span class="text-xs text-gray-500"
+                  >{{ appointment.get_type_display }}</span
+                >
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center py-4 text-gray-500">
+            <i class="far fa-calendar-check text-2xl mb-2"></i>
+            <p>No appointments scheduled for today</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Quick Patient Lookup -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <i class="fas fa-search mr-2 text-primary"></i>
+          Quick Patient Lookup
+        </h3>
+
+        <div class="relative mb-3">
+          <input
+            type="text"
+            id="quick-patient-search"
+            placeholder="Search by name, phone, or ID..."
+            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
+          />
+          <i
+            class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"
+          ></i>
         </div>
 
-    </div>
-            </form>
+        <div
+          id="quick-patient-results"
+          class="space-y-2 max-h-60 overflow-y-auto hidden"
+        >
+          <!-- Sample patient result (would be dynamically populated) -->
+          <div
+            class="patient-search-result flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+          >
+            <img
+              src="https://ui-avatars.com/api/?name=John+Doe&background=ecfeff&color=0e7490"
+              class="w-8 h-8 rounded-full mr-3"
+            />
+            <div>
+              <p class="text-sm font-medium">John Doe</p>
+              <p class="text-xs text-gray-500">
+                ID: PT-1001 | Last Visit: 15 Jun 2023
+              </p>
+            </div>
+          </div>
+          <!-- More results would appear here -->
+        </div>
 
+        <div
+          id="quick-patient-empty"
+          class="text-center py-4 text-gray-500 hidden"
+        >
+          <i class="fas fa-user-slash text-2xl mb-2"></i>
+          <p>No patients found</p>
         </div>
-        
-        <!-- Right Column - Enhanced Features -->
-        <div class="w-full md:w-1/2 space-y-6">
-            <!-- Doctor Availability Section -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-calendar-check mr-2 text-primary"></i>
-                    Doctor Availability
-                </h3>
-                
-                <div id="doctor-availability-container">
-                    <div class="text-center py-8" id="no-doctor-selected">
-                        <i class="fas fa-user-md text-3xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">Select a doctor to view their availability</p>
-                    </div>
-                    
-                    <div id="doctor-availability-details" class="hidden">
-                        <div class="flex items-center mb-4">
-                            <img id="doctor-avatar" src="https://ui-avatars.com/api/?name=Doctor&background=ecfeff&color=0e7490" class="w-10 h-10 rounded-full mr-3">
-                            <div>
-                                <h4 id="doctor-name" class="font-medium">Dr. Smith</h4>
-                                <p id="doctor-specialty" class="text-xs text-gray-500">Cardiologist</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Next Available Slots</h4>
-                            <div class="time-slot-grid">
-                                <button class="availability-slot bg-green-50 text-green-800 text-xs py-2 px-3 rounded border border-green-100 hover:bg-green-100">
-                                    Today<br>2:30 PM
-                                </button>
-                                <button class="availability-slot bg-green-50 text-green-800 text-xs py-2 px-3 rounded border border-green-100 hover:bg-green-100">
-                                    Tomorrow<br>9:00 AM
-                                </button>
-                                <button class="availability-slot bg-blue-50 text-blue-800 text-xs py-2 px-3 rounded border border-blue-100 hover:bg-blue-100">
-                                    Wed 12th<br>11:00 AM
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-2">Schedule for <span id="selected-date">Today</span></h4>
-                            <div class="bg-gray-50 rounded-lg p-3 doctor-availability">
-                                <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                    <span class="text-sm font-medium">Morning</span>
-                                    <span class="text-xs text-gray-500">9:00 AM - 12:00 PM</span>
-                                </div>
-                                <div class="space-y-2 mt-2">
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span>9:00 AM</span>
-                                        <span class="badge bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Available</span>
-                                    </div>
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span>9:30 AM</span>
-                                        <span class="badge bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs">Booked</span>
-                                    </div>
-                                    <!-- More time slots would be here -->
-                                </div>
-                                
-                                <div class="flex justify-between items-center py-2 border-b border-gray-100 mt-3">
-                                    <span class="text-sm font-medium">Afternoon</span>
-                                    <span class="text-xs text-gray-500">2:00 PM - 5:00 PM</span>
-                                </div>
-                                <div class="space-y-2 mt-2">
-                                    <div class="flex justify-between items-center text-sm">
-                                        <span>2:00 PM</span>
-                                        <span class="badge bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">Available</span>
-                                    </div>
-                                    <!-- More time slots would be here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Today's Appointments with Status -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-list-ul mr-2 text-primary"></i>
-                    Today's Appointments
-                </h3>
-                
-                <div class="space-y-3">
-                    {% for appointment in todays_appointments %}
-                    <div class="flex items-start p-3 border {% if appointment.status == 'completed' %}border-green-100 bg-green-50{% elif appointment.status == 'cancelled' %}border-red-100 bg-red-50{% else %}border-gray-100 bg-gray-50{% endif %} rounded-lg">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3 mt-1
-                                    {% if appointment.status == 'completed' %}bg-green-100 text-green-600
-                                    {% elif appointment.status == 'cancelled' %}bg-red-100 text-red-600
-                                    {% else %}bg-blue-100 text-blue-600{% endif %}">
-                            <i class="fas 
-                                {% if appointment.status == 'completed' %}fa-check-circle
-                                {% elif appointment.status == 'cancelled' %}fa-times-circle
-                                {% else %}fa-calendar-alt{% endif %}"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex justify-between">
-                                <p class="text-sm font-medium text-gray-900 truncate">{{ appointment.patient.full_name }}</p>
-                                <span class="text-xs px-2 py-0.5 rounded-full 
-                                            {% if appointment.status == 'completed' %}bg-green-100 text-green-800
-                                            {% elif appointment.status == 'cancelled' %}bg-red-100 text-red-800
-                                            {% else %}bg-blue-100 text-blue-800{% endif %}">
-                                    {{ appointment.get_status_display }}
-                                </span>
-                            </div>
-                            <p class="text-xs text-gray-500">With Dr. {{ appointment.doctor.user.full_name }}</p>
-                            <div class="flex items-center mt-1">
-                                <i class="far fa-clock text-xs text-gray-400 mr-1"></i>
-                                <span class="text-xs font-medium text-gray-700">{{ appointment.time|time:"h:i A" }}</span>
-                                <span class="mx-2 text-gray-300">|</span>
-                                <span class="text-xs text-gray-500">{{ appointment.get_type_display }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-4 text-gray-500">
-                        <i class="far fa-calendar-check text-2xl mb-2"></i>
-                        <p>No appointments scheduled for today</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <!-- Quick Patient Lookup -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-search mr-2 text-primary"></i>
-                    Quick Patient Lookup
-                </h3>
-                
-                <div class="relative mb-3">
-                    <input type="text" id="quick-patient-search" placeholder="Search by name, phone, or ID..." 
-                           class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
-                </div>
-                
-                <div id="quick-patient-results" class="space-y-2 max-h-60 overflow-y-auto hidden">
-                    <!-- Sample patient result (would be dynamically populated) -->
-                    <div class="patient-search-result flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full mr-3">
-                        <div>
-                            <p class="text-sm font-medium">John Doe</p>
-                            <p class="text-xs text-gray-500">ID: PT-1001 | Last Visit: 15 Jun 2023</p>
-                        </div>
-                    </div>
-                    <!-- More results would appear here -->
-                </div>
-                
-                <div id="quick-patient-empty" class="text-center py-4 text-gray-500 hidden">
-                    <i class="fas fa-user-slash text-2xl mb-2"></i>
-                    <p>No patients found</p>
-                </div>
-            </div>
-        </div>
-        
+      </div>
     </div>
-    <div id="calendar" class="mt-10"></div>
-    {% for p in patient %}
-    <div >title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date }}', end: '{{ p.end_time.date }}' </div>
-    {% endfor %}
+  </div>
+  <div id="calendar" class="mt-10"></div>
+  {% for p in patient %}
+  <div>
+    title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date }}', end:
+    '{{ p.end_time.date }}'
+  </div>
+  {% endfor %}
 </div>
-{% endblock content %}
-
-{% block scripts %}
+{% endblock content %} {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
     // Set minimum date to today
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').setAttribute('min', today);
-    
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("date").setAttribute("min", today);
+
     // Date suggestion buttons
-    document.querySelectorAll('.date-suggestion-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const daysToAdd = parseInt(this.dataset.days);
-            const date = new Date();
-            date.setDate(date.getDate() + daysToAdd);
-            const formattedDate = date.toISOString().split('T')[0];
-            document.getElementById('date').value = formattedDate;
-        });
+    document.querySelectorAll(".date-suggestion-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const daysToAdd = parseInt(this.dataset.days);
+        const date = new Date();
+        date.setDate(date.getDate() + daysToAdd);
+        const formattedDate = date.toISOString().split("T")[0];
+        document.getElementById("date").value = formattedDate;
+      });
     });
-    
+
     // Doctor selection change handler
-    document.getElementById('doctor').addEventListener('change', function() {
-        const doctorId = this.value;
-        const doctorOption = this.options[this.selectedIndex];
-        
-        if (doctorId) {
-            document.getElementById('no-doctor-selected').classList.add('hidden');
-            document.getElementById('doctor-availability-details').classList.remove('hidden');
-            
-            // Update doctor details in the availability section
-            document.getElementById('doctor-name').textContent = doctorOption.text.split(' (')[0];
-            document.getElementById('doctor-specialty').textContent = doctorOption.dataset.specialization;
-            
-            // In a real implementation, you would fetch the doctor's availability here
-            console.log('Fetching availability for doctor:', doctorId);
-        } else {
-            document.getElementById('no-doctor-selected').classList.remove('hidden');
-            document.getElementById('doctor-availability-details').classList.add('hidden');
-        }
+    document.getElementById("doctor").addEventListener("change", function () {
+      const doctorId = this.value;
+      const doctorOption = this.options[this.selectedIndex];
+
+      if (doctorId) {
+        document.getElementById("no-doctor-selected").classList.add("hidden");
+        document
+          .getElementById("doctor-availability-details")
+          .classList.remove("hidden");
+
+        // Update doctor details in the availability section
+        document.getElementById("doctor-name").textContent =
+          doctorOption.text.split(" (")[0];
+        document.getElementById("doctor-specialty").textContent =
+          doctorOption.dataset.specialization;
+
+        // In a real implementation, you would fetch the doctor's availability here
+        console.log("Fetching availability for doctor:", doctorId);
+      } else {
+        document
+          .getElementById("no-doctor-selected")
+          .classList.remove("hidden");
+        document
+          .getElementById("doctor-availability-details")
+          .classList.add("hidden");
+      }
     });
-    
+
     // Patient search functionality
-    document.getElementById('patient-search').addEventListener('input', function() {
+    document
+      .getElementById("patient-search")
+      .addEventListener("input", function () {
         const searchTerm = this.value.toLowerCase();
         if (searchTerm.length > 2) {
-            // In a real implementation, you would fetch matching patients from the server
-            console.log('Searching for patients:', searchTerm);
+          // In a real implementation, you would fetch matching patients from the server
+          console.log("Searching for patients:", searchTerm);
         }
-    });
-    
+      });
+
     // Quick patient lookup
-    document.getElementById('quick-patient-search').addEventListener('input', function() {
+    document
+      .getElementById("quick-patient-search")
+      .addEventListener("input", function () {
         const searchTerm = this.value.toLowerCase();
         if (searchTerm.length > 2) {
-            // Show loading state
-            document.getElementById('quick-patient-results').classList.add('hidden');
-            document.getElementById('quick-patient-empty').classList.add('hidden');
-            
-            // Simulate API call
-            setTimeout(() => {
-                // In a real implementation, you would populate this with actual search results
-                if (searchTerm.includes('john')) {
-                    document.getElementById('quick-patient-results').classList.remove('hidden');
-                    document.getElementById('quick-patient-empty').classList.add('hidden');
-                } else {
-                    document.getElementById('quick-patient-results').classList.add('hidden');
-                    document.getElementById('quick-patient-empty').classList.remove('hidden');
-                }
-            }, 500);
+          // Show loading state
+          document
+            .getElementById("quick-patient-results")
+            .classList.add("hidden");
+          document
+            .getElementById("quick-patient-empty")
+            .classList.add("hidden");
+
+          // Simulate API call
+          setTimeout(() => {
+            // In a real implementation, you would populate this with actual search results
+            if (searchTerm.includes("john")) {
+              document
+                .getElementById("quick-patient-results")
+                .classList.remove("hidden");
+              document
+                .getElementById("quick-patient-empty")
+                .classList.add("hidden");
+            } else {
+              document
+                .getElementById("quick-patient-results")
+                .classList.add("hidden");
+              document
+                .getElementById("quick-patient-empty")
+                .classList.remove("hidden");
+            }
+          }, 500);
         } else {
-            document.getElementById('quick-patient-results').classList.add('hidden');
-            document.getElementById('quick-patient-empty').classList.add('hidden');
+          document
+            .getElementById("quick-patient-results")
+            .classList.add("hidden");
+          document
+            .getElementById("quick-patient-empty")
+            .classList.add("hidden");
         }
-    });
-    
+      });
+
     // Notes character counter
-    document.getElementById('notes').addEventListener('input', function() {
-        const count = this.value.length;
-        document.getElementById('notes-counter').textContent = `${count}/200`;
+    document.getElementById("notes").addEventListener("input", function () {
+      const count = this.value.length;
+      document.getElementById("notes-counter").textContent = `${count}/200`;
     });
-    
+
     // Form submission handler
-    document.getElementById('appointment-form').addEventListener('submit', function(e) {
+    document
+      .getElementById("appointment-form")
+      .addEventListener("submit", function (e) {
         // Validate form before submission
-        const patient = document.getElementById('patient').value;
-        const doctor = document.getElementById('doctor').value;
-        const startTime = document.getElementById('start_time').value;
-        const endTime = document.getElementById('end_time').value;
-        
+        const patient = document.getElementById("patient").value;
+        const doctor = document.getElementById("doctor").value;
+        const startTime = document.getElementById("start_time").value;
+        const endTime = document.getElementById("end_time").value;
+
+        // Debug: Log form values
+        console.log("Form submission values:");
+        console.log("Patient:", patient);
+        console.log("Doctor:", doctor);
+        console.log("Start Time:", startTime);
+        console.log("End Time:", endTime);
+
         if (!patient) {
-            e.preventDefault();
-            alert('Please select a patient');
-            return;
+          e.preventDefault();
+          alert("Please select a patient");
+          return;
         }
-        
+
         if (!doctor) {
-            e.preventDefault();
-            alert('Please select a doctor');
-            return;
+          e.preventDefault();
+          alert("Please select a doctor");
+          return;
         }
-        
+
         if (!startTime) {
-            e.preventDefault();
-            alert('Please select a start time');
-            return;
+          e.preventDefault();
+          alert("Please select a start time");
+          return;
         }
-        
+
         if (!endTime) {
-            e.preventDefault();
-            alert('Please select an end time');
-            return;
+          e.preventDefault();
+          alert("Please select an end time");
+          return;
         }
-        
+
         // Show loading state (form will submit normally)
         const submitBtn = this.querySelector('button[type="submit"]');
         if (submitBtn) {
-            submitBtn.textContent = 'Booking...';
-            submitBtn.disabled = true;
+          submitBtn.textContent = "Booking...";
+          submitBtn.disabled = true;
         }
-    });
-    
+      });
+
     // Specialization filter
-    document.getElementById('specialization-filter').addEventListener('change', function() {
+    document
+      .getElementById("specialization-filter")
+      .addEventListener("change", function () {
         const specialization = this.value;
-        const doctorSelect = document.getElementById('doctor');
-        
+        const doctorSelect = document.getElementById("doctor");
+
         if (specialization) {
-            // Filter doctor options
-            Array.from(doctorSelect.options).forEach(option => {
-                if (option.value === "") return; // Keep the "Select Doctor" option
-                
-                if (option.dataset.specialization === specialization) {
-                    option.hidden = false;
-                } else {
-                    option.hidden = true;
-                }
-            });
-            
-            // Reset selection if current selection doesn't match filter
-            if (doctorSelect.value && doctorSelect.options[doctorSelect.selectedIndex].dataset.specialization !== specialization) {
-                doctorSelect.value = "";
+          // Filter doctor options
+          Array.from(doctorSelect.options).forEach((option) => {
+            if (option.value === "") return; // Keep the "Select Doctor" option
+
+            if (option.dataset.specialization === specialization) {
+              option.hidden = false;
+            } else {
+              option.hidden = true;
             }
+          });
+
+          // Reset selection if current selection doesn't match filter
+          if (
+            doctorSelect.value &&
+            doctorSelect.options[doctorSelect.selectedIndex].dataset
+              .specialization !== specialization
+          ) {
+            doctorSelect.value = "";
+          }
         } else {
-            // Show all doctors
-            Array.from(doctorSelect.options).forEach(option => {
-                option.hidden = false;
-            });
+          // Show all doctors
+          Array.from(doctorSelect.options).forEach((option) => {
+            option.hidden = false;
+          });
         }
-    });
-});
+      });
+  });
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const calendarEl = document.getElementById('calendar');
-  
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
-        },
-        editable: true,
-        selectable: true,
-        selectHelper: true, // shows selection highlight
-  
-        // Allow adding events by clicking a date
-        dateClick: function(info) {
-          let title = prompt('Enter Task Title:');
-          if (title) {
-            calendar.addEvent({
-              title: title,
-              start: info.date,
-              allDay: true
-            });
-          }
-        },
-  
-        // Also allow selecting a range to create multi-day events
-        select: function(info) {
-          let title = prompt('Enter Event Title:');
-          if (title) {
-            calendar.addEvent({
-              title: title,
-              start: info.start,
-              end: info.end,
-              allDay: info.allDay
-            });
-          }
-        },
-  
-        // Example initial events
-        events: [
-          {% for p in patient %}
-          { title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date:"Y-m-d H:i:s"  }}', end: '{{ p.end_time|date:"Y-m-d H:i:s"  }}' },
-          {% endfor %}
-        ]
-      });
-  
-      calendar.render();
-    });
+      document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
 
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+          },
+          editable: true,
+          selectable: true,
+          selectHelper: true, // shows selection highlight
 
-
-    // search 
-    document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("patient-search");
-    const resultsDiv = document.getElementById("patient-search-results");
-    const selectElement = document.getElementById("patient");
-
-    let debounceTimer;
-    searchInput.addEventListener("input", function () {
-        clearTimeout(debounceTimer);
-        const query = this.value.trim();
-
-        if (query.length < 2) {
-            resultsDiv.classList.add("hidden");
-            return;
-        }
-
-        debounceTimer = setTimeout(() => {
-            fetch(`/search-patients/?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    resultsDiv.innerHTML = "";
-                    if (data.length > 0) {
-                        data.forEach(patient => {
-                            const item = document.createElement("div");
-                            item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
-                            item.textContent = `${patient.hospital_patient_id}- ${patient.first_name} ${patient.last_name} (${patient.phone_number})`;
-                            item.onclick = () => {
-                                selectElement.innerHTML = "";
-
-                                // Add the selected patient as an option
-                                const option = document.createElement("option");
-                                option.value = patient.hospital_patient_id;
-                                option.textContent = `${patient.first_name} ${patient.last_name}`;
-                                option.selected = true;
-                                selectElement.appendChild(option);
-
-                                // Update search input display
-                                searchInput.value = `${patient.first_name} ${patient.last_name}`;
-                                resultsDiv.classList.add("hidden");
-                            };
-                            resultsDiv.appendChild(item);
-                        });
-                        resultsDiv.classList.remove("hidden");
-                    } else {
-                        resultsDiv.innerHTML = `<div class="px-4 py-2 text-gray-500">No results found</div>`;
-                        resultsDiv.classList.remove("hidden");
-                    }
-                });
-        }, 300); // Debounce delay
-    });
-});
-
-
-// quick lookup
-document.getElementById("quick-patient-search").addEventListener("input", function () {
-    let query = this.value.trim();
-    const resultsDiv = document.getElementById("quick-patient-results");
-    const emptyDiv = document.getElementById("quick-patient-empty");
-    
-    if (query.length < 2) {
-        resultsDiv.classList.add("hidden");
-        emptyDiv.classList.add("hidden");
-        return;
-    }
-
-    fetch(`/quick-patient-search/?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-            resultsDiv.innerHTML = "";
-            
-            if (data.length > 0) {
-                data.forEach(patient => {
-                    let item = document.createElement("div");
-                    item.className = "patient-search-result flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer";
-                    item.innerHTML = `
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + '+' + patient.last_name)}&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full mr-3">
-                        <div>
-                            <p class="text-sm font-medium">${patient.first_name} ${patient.last_name}</p>
-                            <p class="text-xs text-gray-500">ID: ${patient.hospital_patient_id} | Phone: ${patient.phone_number || 'N/A'}</p>
-                        </div>
-                    `;
-                    item.onclick = () => {
-                        if (patient.profile_url) {
-                            window.location.href = patient.profile_url;
-                        } else {
-                            // If no profile URL, you could show patient details or navigate to a default patient page
-                            console.log('Selected patient:', patient);
-                        }
-                    };
-                    resultsDiv.appendChild(item);
-                });
-                resultsDiv.classList.remove("hidden");
-                emptyDiv.classList.add("hidden");
-            } else {
-                resultsDiv.classList.add("hidden");
-                emptyDiv.classList.remove("hidden");
+          // Allow adding events by clicking a date
+          dateClick: function(info) {
+            let title = prompt('Enter Task Title:');
+            if (title) {
+              calendar.addEvent({
+                title: title,
+                start: info.date,
+                allDay: true
+              });
             }
-        })
-        .catch(error => {
-            console.error('Error fetching patient data:', error);
-            resultsDiv.classList.add("hidden");
-            emptyDiv.classList.remove("hidden");
+          },
+
+          // Also allow selecting a range to create multi-day events
+          select: function(info) {
+            let title = prompt('Enter Event Title:');
+            if (title) {
+              calendar.addEvent({
+                title: title,
+                start: info.start,
+                end: info.end,
+                allDay: info.allDay
+              });
+            }
+          },
+
+          // Example initial events
+          events: [
+            {% for p in patient %}
+            { title: '{{ p.patient.first_name }}', start: '{{ p.start_time|date:"Y-m-d H:i:s"  }}', end: '{{ p.end_time|date:"Y-m-d H:i:s"  }}' },
+            {% endfor %}
+          ]
         });
-});
+
+        calendar.render();
+      });
 
 
 
+      // search
+      document.addEventListener("DOMContentLoaded", function () {
+      const searchInput = document.getElementById("patient-search");
+      const resultsDiv = document.getElementById("patient-search-results");
+      const selectElement = document.getElementById("patient");
 
-  </script>
-    
+      let debounceTimer;
+      searchInput.addEventListener("input", function () {
+          clearTimeout(debounceTimer);
+          const query = this.value.trim();
+
+          if (query.length < 2) {
+              resultsDiv.classList.add("hidden");
+              return;
+          }
+
+          debounceTimer = setTimeout(() => {
+              fetch(`/search-patients/?q=${encodeURIComponent(query)}`)
+                  .then(response => response.json())
+                  .then(data => {
+                      resultsDiv.innerHTML = "";
+                      if (data.length > 0) {
+                          data.forEach(patient => {
+                              const item = document.createElement("div");
+                              item.className = "px-4 py-2 hover:bg-gray-100 cursor-pointer";
+                              item.textContent = `${patient.hospital_patient_id}- ${patient.first_name} ${patient.last_name} (${patient.phone_number})`;
+                              item.onclick = () => {
+                                  selectElement.innerHTML = "";
+
+                                  // Add the selected patient as an option
+                                  const option = document.createElement("option");
+                                  option.value = patient.hospital_patient_id;
+                                  option.textContent = `${patient.first_name} ${patient.last_name}`;
+                                  option.selected = true;
+                                  selectElement.appendChild(option);
+
+                                  // Update search input display
+                                  searchInput.value = `${patient.first_name} ${patient.last_name}`;
+                                  resultsDiv.classList.add("hidden");
+                              };
+                              resultsDiv.appendChild(item);
+                          });
+                          resultsDiv.classList.remove("hidden");
+                      } else {
+                          resultsDiv.innerHTML = `<div class="px-4 py-2 text-gray-500">No results found</div>`;
+                          resultsDiv.classList.remove("hidden");
+                      }
+                  });
+          }, 300); // Debounce delay
+      });
+  });
+
+
+  // quick lookup
+  document.getElementById("quick-patient-search").addEventListener("input", function () {
+      let query = this.value.trim();
+      const resultsDiv = document.getElementById("quick-patient-results");
+      const emptyDiv = document.getElementById("quick-patient-empty");
+
+      if (query.length < 2) {
+          resultsDiv.classList.add("hidden");
+          emptyDiv.classList.add("hidden");
+          return;
+      }
+
+      fetch(`/quick-patient-search/?q=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+              resultsDiv.innerHTML = "";
+
+              if (data.length > 0) {
+                  data.forEach(patient => {
+                      let item = document.createElement("div");
+                      item.className = "patient-search-result flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer";
+                      item.innerHTML = `
+                          <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(patient.first_name + '+' + patient.last_name)}&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full mr-3">
+                          <div>
+                              <p class="text-sm font-medium">${patient.first_name} ${patient.last_name}</p>
+                              <p class="text-xs text-gray-500">ID: ${patient.hospital_patient_id} | Phone: ${patient.phone_number || 'N/A'}</p>
+                          </div>
+                      `;
+                      item.onclick = () => {
+                          if (patient.profile_url) {
+                              window.location.href = patient.profile_url;
+                          } else {
+                              // If no profile URL, you could show patient details or navigate to a default patient page
+                              console.log('Selected patient:', patient);
+                          }
+                      };
+                      resultsDiv.appendChild(item);
+                  });
+                  resultsDiv.classList.remove("hidden");
+                  emptyDiv.classList.add("hidden");
+              } else {
+                  resultsDiv.classList.add("hidden");
+                  emptyDiv.classList.remove("hidden");
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching patient data:', error);
+              resultsDiv.classList.add("hidden");
+              emptyDiv.classList.remove("hidden");
+          });
+  });
+</script>
+
 {% endblock scripts %}

@@ -34,46 +34,78 @@
 
   <!-- Patient Search and Filters -->
   <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <!-- Search -->
-      <div class="md:col-span-2">
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search patients..."
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none"
-          />
-          <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+    <form method="GET" id="search-form">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Search -->
+        <div class="md:col-span-2">
+          <div class="relative">
+            <input
+              type="text"
+              name="search"
+              id="search-input"
+              placeholder="Search patients by name, ID, phone, or email..."
+              value="{{ search_query }}"
+              class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+            />
+            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+            
+            <!-- Search suggestions dropdown -->
+            <div id="search-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <!-- Dynamic search results will appear here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <select
+            name="status"
+            id="status-filter"
+            class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
+          >
+            <option value="">All Statuses</option>
+            <option value="SCHEDULED" {% if status_filter == 'SCHEDULED' %}selected{% endif %}>SCHEDULED</option>
+            <option value="COMPLETED" {% if status_filter == 'COMPLETED' %}selected{% endif %}>COMPLETED</option>
+            <option value="CANCELLED" {% if status_filter == 'CANCELLED' %}selected{% endif %}>CANCELLED</option>
+            <option value="RESCHEDULED" {% if status_filter == 'RESCHEDULED' %}selected{% endif %}>RESCHEDULED</option>
+            <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>PENDING</option>
+          </select>
+        </div>   
+
+        <!-- Date Filter -->
+        <div>
+          <select
+            name="date_range"
+            id="date-filter"
+            class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
+          >
+            <option value="">All Time</option>
+            <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+            <option value="week" {% if date_filter == 'week' %}selected{% endif %}>This Week</option>
+            <option value="month" {% if date_filter == 'month' %}selected{% endif %}>This Month</option>
+            <option value="year" {% if date_filter == 'year' %}selected{% endif %}>This Year</option>
+          </select>
         </div>
       </div>
-
-      <!-- Status Filter -->
-      <div>
-        <select
-          class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
-        >
-          <option value="">All Statuses</option>
-          <option value="SCHEDULED">SCHEDULED</option>
-          <option value="COMPLETED">COMPLETED</option>
-          <option value="CANCELLED">CANCELLED</option>
-          <option value="RESCHEDULED">RESCHEDULED</option>
-          <option value="PENDING">PENDING</option>
-        </select>
-      </div>   
-
-      <!-- Date Filter -->
-      <div>
-        <select
-          class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none appearance-none"
-        >
-          <option value="">All Time</option>
-          <option value="today">Today</option>
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="year">This Year</option>
-        </select>
+      
+      <!-- Search Results Info -->
+      {% if search_query or status_filter or date_filter %}
+      <div class="mt-3 flex items-center justify-between">
+        <div class="text-sm text-gray-600">
+          {% if search_query %}
+            Showing results for "<strong>{{ search_query }}</strong>"
+          {% endif %}
+          {% if status_filter %}
+            | Status: <strong>{{ status_filter }}</strong>
+          {% endif %}
+          {% if date_filter %}
+            | Date: <strong>{{ date_filter|title }}</strong>
+          {% endif %}
+        </div>
+        <a href="{% url 'Patients' %}" class="text-sm text-primary hover:underline">Clear filters</a>
       </div>
-    </div>
+      {% endif %}
+    </form>
   </div>
 
   <!-- Patient Statistics Cards -->
@@ -163,13 +195,22 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <!-- Sample Patient Row 1 -->
+          {% if page_obj %}
            {% for patient in page_obj %}
           <tr class="hover:bg-gray-50">
             <td
               class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
             >
-              {{patient.hospital_patient_id}}
+              <div class="flex items-center space-x-2">
+                <span id="patient-id-{{forloop.counter}}">{{patient.hospital_patient_id}}</span>
+                <button 
+                  onclick="copyPatientId('{{patient.hospital_patient_id}}', {{forloop.counter}})"
+                  class="text-gray-400 hover:text-primary transition-colors duration-200 p-1 rounded hover:bg-gray-100"
+                  title="Copy Patient ID"
+                >
+                  <i class="fas fa-copy text-xs"></i>
+                </button>
+              </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
@@ -218,6 +259,24 @@
             </td>
           </tr>
            {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center">
+              <div class="flex flex-col items-center">
+                <i class="fas fa-search text-4xl text-gray-300 mb-3"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">No patients found</h3>
+                <p class="text-gray-500">
+                  {% if search_query %}
+                    No patients match your search for "{{ search_query }}"
+                  {% else %}
+                    No patients match your current filters
+                  {% endif %}
+                </p>
+                <a href="{% url 'Patients' %}" class="mt-3 text-primary hover:underline">Clear all filters</a>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
           
         </tbody>
       </table>
@@ -267,29 +326,216 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Search functionality would be implemented here
-    const searchInput = document.querySelector(
-      'input[placeholder="Search patients..."]'
-    );
-    searchInput.addEventListener("input", function (e) {
-      const searchTerm = e.target.value.toLowerCase();
-      console.log("Searching for:", searchTerm);
-      // In a real implementation, you would filter the table rows or make an API call
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+    const searchForm = document.getElementById('search-form');
+    const statusFilter = document.getElementById('status-filter');
+    const dateFilter = document.getElementById('date-filter');
+    
+    let searchTimeout;
+    
+    // Real-time search suggestions
+    searchInput.addEventListener('input', function(e) {
+      const query = e.target.value.trim();
+      
+      clearTimeout(searchTimeout);
+      
+      if (query.length >= 2) {
+        searchTimeout = setTimeout(() => {
+          fetch(`/search-patients-ajax/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+              displaySearchSuggestions(data);
+            })
+            .catch(error => {
+              console.error('Search error:', error);
+              searchSuggestions.classList.add('hidden');
+            });
+        }, 300);
+      } else {
+        searchSuggestions.classList.add('hidden');
+      }
     });
-
-    // Status filter functionality
-    const statusFilter = document.querySelector("select");
-    statusFilter.addEventListener("change", function (e) {
-      console.log("Filter by status:", e.target.value);
-      // In a real implementation, you would filter the table rows
+    
+    // Display search suggestions
+    function displaySearchSuggestions(patients) {
+      if (patients.length === 0) {
+        searchSuggestions.innerHTML = '<div class="p-3 text-gray-500 text-sm">No patients found</div>';
+        searchSuggestions.classList.remove('hidden');
+        return;
+      }
+      
+      const suggestionsHTML = patients.map(patient => `
+        <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+             onclick="selectPatient('${patient.name}')">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-medium text-gray-900">${patient.name}</div>
+              <div class="text-sm text-gray-500">ID: ${patient.id} | ${patient.phone}</div>
+            </div>
+            <span class="px-2 py-1 text-xs rounded-full bg-${getStatusColor(patient.status)}-100 text-${getStatusColor(patient.status)}-800">
+              ${patient.status}
+            </span>
+          </div>
+        </div>
+      `).join('');
+      
+      searchSuggestions.innerHTML = suggestionsHTML;
+      searchSuggestions.classList.remove('hidden');
+    }
+    
+    // Select patient from suggestions
+    window.selectPatient = function(patientName) {
+      searchInput.value = patientName;
+      searchSuggestions.classList.add('hidden');
+      searchForm.submit();
+    };
+    
+    // Get status color
+    function getStatusColor(status) {
+      switch(status) {
+        case 'SCHEDULED': return 'blue';
+        case 'COMPLETED': return 'green';
+        case 'CANCELLED': return 'red';
+        case 'RESCHEDULED': return 'yellow';
+        case 'PENDING': return 'orange';
+        default: return 'gray';
+      }
+    }
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+        searchSuggestions.classList.add('hidden');
+      }
     });
-
-    // Date filter functionality
-    const dateFilter = document.querySelectorAll("select")[1];
-    dateFilter.addEventListener("change", function (e) {
-      console.log("Filter by date range:", e.target.value);
-      // In a real implementation, you would filter the table rows
+    
+    // Auto-submit form on filter changes
+    statusFilter.addEventListener('change', function() {
+      searchForm.submit();
     });
+    
+    dateFilter.addEventListener('change', function() {
+      searchForm.submit();
+    });
+    
+    // Submit form on Enter key
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        searchSuggestions.classList.add('hidden');
+        searchForm.submit();
+      }
+    });
+    
+    // Clear search button functionality
+    const clearButton = document.querySelector('a[href*="Clear filters"]');
+    if (clearButton) {
+      clearButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        searchInput.value = '';
+        statusFilter.value = '';
+        dateFilter.value = '';
+        window.location.href = '{% url "Patients" %}';
+      });
+    }
   });
+  
+  // Copy patient ID function
+  function copyPatientId(patientId, counter) {
+    // Try to use the modern clipboard API first
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(patientId).then(function() {
+        showCopySuccess(counter);
+      }).catch(function(err) {
+        // Fallback to older method
+        fallbackCopyTextToClipboard(patientId, counter);
+      });
+    } else {
+      // Fallback for older browsers or non-HTTPS
+      fallbackCopyTextToClipboard(patientId, counter);
+    }
+  }
+  
+  // Fallback copy method for older browsers
+  function fallbackCopyTextToClipboard(text, counter) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        showCopySuccess(counter);
+      } else {
+        showCopyError(counter);
+      }
+    } catch (err) {
+      showCopyError(counter);
+    }
+    
+    document.body.removeChild(textArea);
+  }
+  
+  // Show success feedback
+  function showCopySuccess(counter) {
+    const button = document.querySelector(`button[onclick*="${counter}"]`);
+    const icon = button.querySelector('i');
+    const originalClass = icon.className;
+    
+    // Change icon to checkmark
+    icon.className = 'fas fa-check text-xs text-green-600';
+    button.classList.add('text-green-600');
+    
+    // Show tooltip-like message
+    const tooltip = document.createElement('div');
+    tooltip.className = 'absolute bg-gray-800 text-white text-xs rounded py-1 px-2 -top-8 left-1/2 transform -translate-x-1/2 z-10';
+    tooltip.textContent = 'Copied!';
+    button.style.position = 'relative';
+    button.appendChild(tooltip);
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      icon.className = originalClass;
+      button.classList.remove('text-green-600');
+      if (tooltip.parentNode) {
+        tooltip.parentNode.removeChild(tooltip);
+      }
+    }, 2000);
+  }
+  
+  // Show error feedback
+  function showCopyError(counter) {
+    const button = document.querySelector(`button[onclick*="${counter}"]`);
+    const icon = button.querySelector('i');
+    const originalClass = icon.className;
+    
+    // Change icon to error
+    icon.className = 'fas fa-times text-xs text-red-600';
+    button.classList.add('text-red-600');
+    
+    // Show error tooltip
+    const tooltip = document.createElement('div');
+    tooltip.className = 'absolute bg-red-600 text-white text-xs rounded py-1 px-2 -top-8 left-1/2 transform -translate-x-1/2 z-10';
+    tooltip.textContent = 'Copy failed';
+    button.style.position = 'relative';
+    button.appendChild(tooltip);
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      icon.className = originalClass;
+      button.classList.remove('text-red-600');
+      if (tooltip.parentNode) {
+        tooltip.parentNode.removeChild(tooltip);
+      }
+    }, 2000);
+  }
 </script>
 {% endblock scripts %}

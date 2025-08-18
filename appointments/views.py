@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from .models import Appointment
 from patient.models import Patient
 from dashboard.models import Doctor
@@ -15,7 +16,10 @@ from django.urls import reverse
 
 # Create your views here.
 def appointements(request):
-    doctors = Doctor.objects.all()
+    doctors = Doctor.objects.select_related('user').all()
+    print(f"Found {doctors.count()} doctors:")
+    for doctor in doctors:
+        print(f"Doctor PK: {doctor.pk}, Name: {doctor.user.first_name} {doctor.user.last_name}, Specialization: {doctor.specialization}")
     time_slots = range(7, 19)
 
     # Get the current week's date range
@@ -35,7 +39,7 @@ def appointements(request):
     if request.method == 'POST':
         patient_id = request.POST.get('patient')
         doctor_id = request.POST.get('doctor')
-        print(f"Received patient ID: {doctor_id}")
+        print(f"Received doctor ID: {doctor_id}")
         # doctor = get_object_or_404(Doctor, user_id=doctor_id)
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
@@ -64,17 +68,26 @@ def appointements(request):
         if patient_id and doctor_id and start_time and end_time:
             try:
                 patient = get_object_or_404(Patient, hospital_patient_id=patient_id)
-                doctor = get_object_or_404(Doctor, id=doctor_id)
+                doctor = get_object_or_404(Doctor, pk=doctor_id)
                 
                 print(f"Patient found: {patient.first_name} {patient.last_name}")
                 print(f"Doctor found: Dr. {doctor.user.first_name} {doctor.user.last_name}")
+                
+                # Parse and make timezone-aware datetime objects
+                start_datetime = parse_datetime(start_time)
+                end_datetime = parse_datetime(end_time)
+                
+                if start_datetime and timezone.is_naive(start_datetime):
+                    start_datetime = timezone.make_aware(start_datetime)
+                if end_datetime and timezone.is_naive(end_datetime):
+                    end_datetime = timezone.make_aware(end_datetime)
                 
                 # Create the appointment
                 appointment = Appointment.objects.create(
                     patient=patient,
                     doctor=doctor,
-                    start_time=start_time,
-                    end_time=end_time,
+                    start_time=start_datetime,
+                    end_time=end_datetime,
                     status=status or 'scheduled',
                     reason_for_visit=reason_for_visit or ''
                 )

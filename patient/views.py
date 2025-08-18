@@ -7,28 +7,97 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils import timezone
 from appointments.models import Appointment
+from django.db.models import Q
+from django.contrib.postgres.search import TrigramSimilarity
+from django.http import JsonResponse
 
 # Create your views here.
 def patient(request):
     try:
-        patients = Patient.objects.all().order_by('-registration_date')
+        # Get search query
+        search_query = request.GET.get('search', '').strip()
+        status_filter = request.GET.get('status', '')
+        date_filter = request.GET.get('date_range', '')
+        
+        # Base queryset
+        patients = Patient.objects.all()
+        
+        # Apply search with trigram similarity
+        if search_query:
+            # Simple approach: use a single queryset with all conditions
+            search_conditions = Q()
+            
+            # Search in individual fields
+            search_conditions |= Q(first_name__icontains=search_query)
+            search_conditions |= Q(last_name__icontains=search_query)
+            search_conditions |= Q(hospital_patient_id__icontains=search_query)
+            search_conditions |= Q(phone_number__icontains=search_query)
+            search_conditions |= Q(email__icontains=search_query)
+            
+            # Split search query for name combinations
+            search_words = search_query.split()
+            if len(search_words) >= 2:
+                # Try first word as first name, second as last name
+                search_conditions |= Q(first_name__icontains=search_words[0], last_name__icontains=search_words[1])
+                # Try first word as last name, second as first name
+                search_conditions |= Q(first_name__icontains=search_words[1], last_name__icontains=search_words[0])
+            
+            # Apply search conditions
+            patients = patients.filter(search_conditions)
+            
+            # If no results with basic search, try trigram similarity
+            if patients.count() == 0:
+                patients = Patient.objects.annotate(
+                    sim_first=TrigramSimilarity('first_name', search_query),
+                    sim_last=TrigramSimilarity('last_name', search_query),
+                    sim_id=TrigramSimilarity('hospital_patient_id', search_query),
+                ).filter(
+                    Q(sim_first__gt=0.2) |
+                    Q(sim_last__gt=0.2) |
+                    Q(sim_id__gt=0.2)
+                ).order_by('-sim_first', '-sim_last', '-sim_id')
+        
+        # Apply status filter
+        if status_filter:
+            patients = patients.filter(status=status_filter)
+        
+        # Apply date filter
+        now = timezone.now()
+        if date_filter == 'today':
+            patients = patients.filter(registration_date__date=now.date())
+        elif date_filter == 'week':
+            week_start = now.date() - timezone.timedelta(days=now.weekday())
+            patients = patients.filter(registration_date__date__gte=week_start)
+        elif date_filter == 'month':
+            patients = patients.filter(registration_date__month=now.month, registration_date__year=now.year)
+        elif date_filter == 'year':
+            patients = patients.filter(registration_date__year=now.year)
+        
+        # Order by registration date if no search query
+        if not search_query:
+            patients = patients.order_by('-registration_date')
+        
+        # Pagination
         paginator = Paginator(patients, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        now = timezone.now()
-        new_this_month = Patient.objects.filter(registration_date__month=now.month, registration_date__year=now.year).count()
+        
+        # Statistics - Calculate from ALL patients, not filtered ones
+        all_patients = Patient.objects.all()
+        new_this_month = all_patients.filter(registration_date__month=now.month, registration_date__year=now.year).count()
         today = timezone.now().date()
         end_of_week = today + timezone.timedelta(days=7)
         upcoming_appointments = Appointment.objects.filter(start_time__range=[today,end_of_week]).count()
-        print(f"Upcoming appointments: {upcoming_appointments}")
-        statuses = ['SCHEDULED', 'CANCELLED', 'RESCHEDULED', 'PENDING']
-        total_patients = Patient.objects.filter(status__in=statuses).count()
-        print(f"Total patients: {total_patients}")
         
-    except Patient.DoesNotExist:
+        statuses = ['SCHEDULED', 'CANCELLED', 'RESCHEDULED', 'PENDING']
+        total_patients = all_patients.count()  # Count all patients, not just filtered ones
+        
+    except Exception as e:
+        print(f"Error in patient view: {e}")
         return render(request, 'login_main/patients.html', {
-            'error': 'No patients found.'
+            'error': 'An error occurred while loading patients.'
         })
+    
     context = {
         'active_page': 'patients',
         'page_title': 'Patients Overview',
@@ -37,6 +106,9 @@ def patient(request):
         'total_patients': total_patients,
         'new_this_month': new_this_month,
         'upcoming_appointments': upcoming_appointments,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'date_filter': date_filter,
     }
     return render(request, 'login_main/patients.html', context)
 
@@ -110,3 +182,64 @@ def delete_patient(request, patient_id):
     except Patient.DoesNotExist:
         pass
     return redirect('/patients/')
+
+
+def search_patients_ajax(request):
+    """AJAX endpoint for real-time patient search"""
+    query = request.GET.get('q', '').strip()
+    results = []
+    
+    if query and len(query) >= 2:
+        # Split search query into words for better name matching
+        search_words = query.split()
+        
+        # Build search conditions
+        search_conditions = Q()
+        
+        # Search in individual fields
+        search_conditions |= Q(first_name__icontains=query)
+        search_conditions |= Q(last_name__icontains=query)
+        search_conditions |= Q(hospital_patient_id__icontains=query)
+        search_conditions |= Q(phone_number__icontains=query)
+        search_conditions |= Q(email__icontains=query)
+        
+        # If multiple words, search for combinations (e.g., "John Doe")
+        if len(search_words) >= 2:
+            for i in range(len(search_words)):
+                for j in range(i+1, len(search_words)):
+                    # Try first_name + last_name combinations
+                    search_conditions |= Q(first_name__icontains=search_words[i], last_name__icontains=search_words[j])
+                    search_conditions |= Q(first_name__icontains=search_words[j], last_name__icontains=search_words[i])
+        
+        # Exact matches first
+        exact_matches = Patient.objects.filter(search_conditions)[:5]
+        
+        # Fuzzy matches with trigram similarity
+        fuzzy_matches = Patient.objects.annotate(
+            sim_first=TrigramSimilarity('first_name', query),
+            sim_last=TrigramSimilarity('last_name', query),
+            sim_id=TrigramSimilarity('hospital_patient_id', query),
+            sim_phone=TrigramSimilarity('phone_number', query),
+            sim_email=TrigramSimilarity('email', query),
+        ).filter(
+            Q(sim_first__gt=0.2) |
+            Q(sim_last__gt=0.2) |
+            Q(sim_id__gt=0.2) |
+            Q(sim_phone__gt=0.2) |
+            Q(sim_email__gt=0.2)
+        ).exclude(search_conditions).order_by('-sim_first', '-sim_last', '-sim_id', '-sim_phone', '-sim_email')[:5]
+        
+        # Combine and format results
+        all_patients = list(exact_matches) + list(fuzzy_matches)
+        
+        for patient in all_patients[:10]:  # Limit to 10 results
+            results.append({
+                'id': patient.hospital_patient_id,
+                'name': f"{patient.first_name} {patient.last_name}",
+                'phone': patient.phone_number or 'N/A',
+                'email': patient.email or 'N/A',
+                'status': patient.status,
+                'registration_date': patient.registration_date.strftime('%Y-%m-%d') if patient.registration_date else 'N/A'
+            })
+    
+    return JsonResponse(results, safe=False)
