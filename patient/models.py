@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.indexes import GinIndex
 
 class Patient(models.Model):
     """
@@ -56,8 +55,11 @@ class Patient(models.Model):
 
     
     class Meta:
+        # Using standard B-tree indexes instead of GIN for better compatibility
         indexes = [
-            GinIndex(fields=['hospital_patient_id']),
-            GinIndex(fields=['first_name']),
-            GinIndex(fields=['last_name']),
+            models.Index(fields=['hospital_patient_id']),
+            models.Index(fields=['first_name']),
+            models.Index(fields=['last_name']),
+            models.Index(fields=['phone_number']),
+            models.Index(fields=['email']),
         ]

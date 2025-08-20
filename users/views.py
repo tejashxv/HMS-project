@@ -21,7 +21,7 @@ def hospital_register(request):
 
                 if User.objects.filter(username=admin_email).exists():
                     messages.error(request, 'User with this email already exists.')
-                    return redirect('hospital_register')
+                    return redirect('users:hospital_register')
 
                 user = User.objects.create_user(
                     username=admin_email,
@@ -47,11 +47,11 @@ def hospital_register(request):
                 )
 
                 messages.success(request, 'Hospital registered successfully!')
-                return redirect('hospital_register_success')
+                return redirect('users:hospital_register_success')
 
         except Exception as e:
             messages.error(request, f'Error registering hospital: {str(e)}')
-            return redirect('hospital_register')
+            return redirect('users:hospital_register')
 
     return render(request, 'users/hospital_registration.html')
 
@@ -60,7 +60,7 @@ def hospital_register_success(request):
     hospital = Hospital.objects.last()  # Get the last registered hospital
     if not hospital:
         messages.error(request, 'No hospital found.')
-        return redirect('hospital_register')
+        return redirect('users:hospital_register')
     messages.success(request, f'Hospital {hospital.hospital_name} registered successfully!')
     context = {
         'hospital': hospital

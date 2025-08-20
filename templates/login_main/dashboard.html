@@ -1,295 +1,469 @@
-{% extends "login_main/base/base.html" %}
-
-{% block content %}
+{% extends "login_main/base/base.html" %} {% block content %}
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-lg bg-blue-50 text-blue-600 mr-4">
-                                <i class="fas fa-calendar-check"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Today's Appointments</p>
-                                <p class="text-xl font-semibold">12</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-100">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-lg bg-green-50 text-green-600 mr-4">
-                                <i class="fas fa-user-injured"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">New Patients</p>
-                                <p class="text-xl font-semibold">5</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-200">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-lg bg-purple-50 text-purple-600 mr-4">
-                                <i class="fas fa-file-invoice-dollar"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Pending Invoices</p>
-                                <p class="text-xl font-semibold">3</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-300">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-lg bg-amber-50 text-amber-600 mr-4">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Revenue Today</p>
-                                <p class="text-xl font-semibold">$2,450</p>
-                            </div>
-                        </div>
-                    </div>
+  <div
+    class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in"
+  >
+    <div class="flex items-center">
+      <div class="p-3 rounded-lg bg-blue-50 text-blue-600 mr-4">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Today's Appointments</p>
+        <p class="text-xl font-semibold">{{ upcoming_appointments_count }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-100"
+  >
+    <div class="flex items-center">
+      <div class="p-3 rounded-lg bg-green-50 text-green-600 mr-4">
+        <i class="fas fa-user-injured"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">New Patients</p>
+        <p class="text-xl font-semibold">5</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-200"
+  >
+    <div class="flex items-center">
+      <div class="p-3 rounded-lg bg-purple-50 text-purple-600 mr-4">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Pending Invoices</p>
+        <p class="text-xl font-semibold">3</p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 animate-fade-in delay-300"
+  >
+    <div class="flex items-center">
+      <div class="p-3 rounded-lg bg-amber-50 text-amber-600 mr-4">
+        <i class="fas fa-dollar-sign"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Revenue Today</p>
+        <p class="text-xl font-semibold">$2,450</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Left Column -->
+  <div class="lg:col-span-2 space-y-6">
+    <!-- Today's Upcoming Appointments Card -->
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in"
+    >
+      <div
+        class="border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+      >
+        <h3 class="font-semibold text-gray-800">
+          {{ appointment_type|default:"Upcoming" }} Appointments
+        </h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-sm text-gray-500"
+            >{{ upcoming_appointments_count }} found</span
+          >
+          <a
+            href="{% url 'Appointments' %}"
+            class="text-sm text-primary hover:text-primary-dark font-medium"
+            >View All</a
+          >
+        </div>
+      </div>
+
+      {% if upcoming_appointments %}
+      <div class="divide-y divide-gray-200">
+        {% for apt in upcoming_appointments %}
+        <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+          <div class="flex items-center">
+            <!-- Time Display -->
+            <div class="mr-4 text-center min-w-0 flex-shrink-0">
+              <div class="bg-primary-light text-primary px-3 py-2 rounded-lg">
+                <p class="text-sm font-bold">{{ apt.start_time|time:"H:i" }}</p>
+                <p class="text-xs">{{ apt.start_time|date:"M d" }}</p>
+              </div>
+            </div>
+
+            <!-- Patient Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center mb-1">
+                <img
+                  src="https://ui-avatars.com/api/?name={{ apt.patient.first_name }}+{{ apt.patient.last_name }}&background=ecfeff&color=0e7490"
+                  class="w-8 h-8 rounded-full mr-3"
+                  alt="Patient Avatar"
+                />
+                <div>
+                  <p class="font-medium text-gray-900 truncate">
+                    {{ apt.patient.first_name }} {{ apt.patient.last_name }}
+                  </p>
+                  <p class="text-sm text-gray-500">
+                    ID: {{ apt.patient.hospital_patient_id }}
+                  </p>
                 </div>
-                
-                <!-- Main Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Left Column -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <!-- Appointments Card -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
-                            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                                <h3 class="font-semibold text-gray-800">Upcoming Appointments</h3>
-                                <a href="#" class="text-sm text-primary hover:text-primary-dark font-medium">View All</a>
-                            </div>
-                            <div class="divide-y divide-gray-200">
-                                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="mr-4 text-center">
-                                            <p class="text-xs text-gray-500">10:00</p>
-                                            <p class="text-xs text-gray-500">AM</p>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-medium">John Smith</p>
-                                            <p class="text-sm text-gray-500">Follow-up Consultation</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                Confirmed
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="mr-4 text-center">
-                                            <p class="text-xs text-gray-500">11:30</p>
-                                            <p class="text-xs text-gray-500">AM</p>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-medium">Sarah Johnson</p>
-                                            <p class="text-sm text-gray-500">Initial Evaluation</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                Pending
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="mr-4 text-center">
-                                            <p class="text-xs text-gray-500">02:15</p>
-                                            <p class="text-xs text-gray-500">PM</p>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-medium">Michael Brown</p>
-                                            <p class="text-sm text-gray-500">Physical Therapy</p>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                                Confirmed
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Message Board -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
-                            <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                                <h3 class="font-semibold text-gray-800">Team Messages</h3>
-                                <button class="text-sm bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-lg font-medium flex items-center">
-                                    <i class="fas fa-plus mr-1 text-xs"></i> New Message
-                                </button>
-                            </div>
-                            
-                            <div class="p-6">
-                                <div class="bg-primary-light border-l-4 border-primary rounded-lg p-4 mb-6">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h4 class="font-bold text-primary">Welcome to HMS!</h4>
-                                            <p class="text-xs text-gray-500">The HMS Team - 35 minutes ago</p>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-gray-600">
-                                            <i class="far fa-bookmark"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="space-y-3 text-gray-700 text-sm">
-                                        <p>This is your internal message board, where you can write messages to the other people in your account. You can also make comments, so it's a great place for discussions.</p>
-                                        <p>Here's our <a href="#" class="text-primary underline">guide to setting up</a>, where you'll find some of the ways that you can get started in your new HMS account!</p>
-                                        <p>HMS support loves to help! We've got years and years of experience knowing the best way to get HMS working efficiently for you.</p>
-                                    </div>
-                                    
-                                    <div class="mt-4 flex items-center text-sm">
-                                        <button class="text-primary hover:text-primary-dark font-medium flex items-center mr-4">
-                                            <i class="far fa-comment-alt mr-1"></i> 3 Replies
-                                        </button>
-                                        <button class="text-primary hover:text-primary-dark font-medium flex items-center">
-                                            <i class="far fa-edit mr-1"></i> Write a reply
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="border rounded-lg p-4">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h4 class="font-bold">Clinic Holiday Schedule</h4>
-                                            <p class="text-xs text-gray-500">Dr. Smith - 2 hours ago</p>
-                                        </div>
-                                        <button class="text-gray-400 hover:text-gray-600">
-                                            <i class="far fa-bookmark"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <div class="space-y-3 text-gray-700 text-sm">
-                                        <p>Just a reminder that the clinic will be closed from December 24th to January 2nd for the holidays. Please make sure all patient appointments are rescheduled accordingly.</p>
-                                    </div>
-                                    
-                                    <div class="mt-4 flex items-center text-sm">
-                                        <button class="text-primary hover:text-primary-dark font-medium flex items-center mr-4">
-                                            <i class="far fa-comment-alt mr-1"></i> 5 Replies
-                                        </button>
-                                        <button class="text-primary hover:text-primary-dark font-medium flex items-center">
-                                            <i class="far fa-edit mr-1"></i> Write a reply
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Right Column -->
-                    <div class="space-y-6">
-                        <!-- Quick Actions -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
-                            <div class="border-b border-gray-200 px-6 py-4">
-                                <h3 class="font-semibold text-gray-800">Quick Actions</h3>
-                            </div>
-                            <div class="p-4 grid grid-cols-2 gap-3">
-                                <a href="#" class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center">
-                                    <div class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                    <p class="text-xs font-medium">New Patient</p>
-                                </a>
-                                <a href="#" class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center">
-                                    <div class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <i class="far fa-calendar-plus"></i>
-                                    </div>
-                                    <p class="text-xs font-medium">New Appointment</p>
-                                </a>
-                                <a href="#" class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center">
-                                    <div class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <i class="fas fa-file-invoice"></i>
-                                    </div>
-                                    <p class="text-xs font-medium">Create Invoice</p>
-                                </a>
-                                <a href="#" class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center">
-                                    <div class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <p class="text-xs font-medium">View Reports</p>
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Draft Treatment Notes -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
-                            <div class="border-b border-gray-200 px-6 py-4">
-                                <h3 class="font-semibold text-gray-800">Draft Treatment Notes</h3>
-                            </div>
-                            <div class="p-6 text-center">
-                                <div class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <i class="fas fa-check text-xl"></i>
-                                </div>
-                                <h4 class="font-medium text-gray-800 mb-1">All caught up!</h4>
-                                <p class="text-sm text-gray-500">You have no draft treatment notes.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Recent Activity -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in">
-                            <div class="border-b border-gray-200 px-6 py-4">
-                                <h3 class="font-semibold text-gray-800">Recent Activity</h3>
-                            </div>
-                            <div class="divide-y divide-gray-200">
-                                <div class="px-6 py-3">
-                                    <div class="flex items-start">
-                                        <div class="mr-3 mt-0.5">
-                                            <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-calendar-check text-sm"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium">New appointment scheduled</p>
-                                            <p class="text-xs text-gray-500">Sarah Johnson - Today 9:15 AM</p>
-                                        </div>
-                                        <span class="text-xs text-gray-400">10m ago</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="px-6 py-3">
-                                    <div class="flex items-start">
-                                        <div class="mr-3 mt-0.5">
-                                            <div class="w-8 h-8 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-file-invoice-dollar text-sm"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium">Invoice #INV-2023-105 created</p>
-                                            <p class="text-xs text-gray-500">John Smith - $150.00</p>
-                                        </div>
-                                        <span class="text-xs text-gray-400">1h ago</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="px-6 py-3">
-                                    <div class="flex items-start">
-                                        <div class="mr-3 mt-0.5">
-                                            <div class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check-circle text-sm"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium">Payment received</p>
-                                            <p class="text-xs text-gray-500">Michael Brown - $85.00</p>
-                                        </div>
-                                        <span class="text-xs text-gray-400">2h ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-  
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-user-md mr-1"></i>
+                <span
+                  >Dr. {{ apt.doctor.user.first_name }}
+                  {{apt.doctor.user.last_name }}</span
+                >
+                <span class="mx-2">•</span>
+                <i class="fas fa-clock mr-1"></i>
+                <span
+                  >{{ apt.start_time|time:"H:i" }} - {{ apt.end_time|time:"H:i"}}</span
+                >
+              </div>
+              {% if apt.reason_for_visit %}
+              <p class="text-sm text-gray-500 mt-1 truncate">
+                {{ apt.reason_for_visit }}
+              </p>
+              {% endif %}
+            </div>
+
+            <!-- Status and Actions -->
+            <div class="text-right flex-shrink-0 ml-4">
+              <div class="mb-2">
+                {% if apt.status == 'scheduled' %}
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  <i class="fas fa-calendar-check mr-1"></i>
+                  Scheduled
+                </span>
+                {% elif apt.status == 'confirmed' %}
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                >
+                  <i class="fas fa-check-circle mr-1"></i>
+                  Confirmed
+                </span>
+                {% elif apt.status == 'pending' %}
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+                >
+                  <i class="fas fa-clock mr-1"></i>
+                  Pending
+                </span>
+                {% elif apt.status == 'cancelled' %}
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
+                >
+                  <i class="fas fa-times-circle mr-1"></i>
+                  Cancelled
+                </span>
+                {% else %}
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                >
+                  {{ apt.get_status_display }}
+                </span>
+                {% endif %}
+              </div>
+              <div class="flex space-x-1">
+                <button
+                  class="text-gray-400 hover:text-primary p-1 rounded"
+                  title="View Details"
+                >
+                  <i class="fas fa-eye text-xs"></i>
+                </button>
+                <button
+                  class="text-gray-400 hover:text-blue-600 p-1 rounded"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit text-xs"></i>
+                </button>
+                <button
+                  class="text-gray-400 hover:text-green-600 p-1 rounded"
+                  title="Mark Complete"
+                >
+                  <i class="fas fa-check text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Show More Button if there are many appointments -->
+      {% if upcoming_appointments_count > 5 %}
+      <div class="px-6 py-4 bg-gray-50 text-center">
+        <a
+          href="{% url 'Appointments' %}"
+          class="text-sm text-primary hover:text-primary-dark font-medium"
+        >
+          View all {{ upcoming_appointments_count }} appointments →
+        </a>
+      </div>
+      {% endif %} {% else %}
+      <!-- No Appointments State -->
+      <div class="px-6 py-8 text-center">
+        <div
+          class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-calendar-check text-xl"></i>
+        </div>
+        <h4 class="font-medium text-gray-800 mb-1">No appointments today!</h4>
+        <p class="text-sm text-gray-500 mb-4">
+          You have no upcoming appointments for the rest of today.
+        </p>
+        <a
+          href="{% url 'Appointments' %}"
+          class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          <i class="fas fa-plus mr-2"></i>
+          Schedule New Appointment
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Message Board -->
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in"
+    >
+      <div
+        class="border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+      >
+        <h3 class="font-semibold text-gray-800">Team Messages</h3>
+        <button
+          class="text-sm bg-primary hover:bg-primary-dark text-white px-3 py-1.5 rounded-lg font-medium flex items-center"
+        >
+          <i class="fas fa-plus mr-1 text-xs"></i> New Message
+        </button>
+      </div>
+
+      <div class="p-6">
+        <div
+          class="bg-primary-light border-l-4 border-primary rounded-lg p-4 mb-6"
+        >
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-bold text-primary">Welcome to HMS!</h4>
+              <p class="text-xs text-gray-500">The HMS Team - 35 minutes ago</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600">
+              <i class="far fa-bookmark"></i>
+            </button>
+          </div>
+
+          <div class="space-y-3 text-gray-700 text-sm">
+            <p>
+              This is your internal message board, where you can write messages
+              to the other people in your account. You can also make comments,
+              so it's a great place for discussions.
+            </p>
+            <p>
+              Here's our
+              <a href="#" class="text-primary underline">guide to setting up</a
+              >, where you'll find some of the ways that you can get started in
+              your new HMS account!
+            </p>
+            <p>
+              HMS support loves to help! We've got years and years of experience
+              knowing the best way to get HMS working efficiently for you.
+            </p>
+          </div>
+
+          <div class="mt-4 flex items-center text-sm">
+            <button
+              class="text-primary hover:text-primary-dark font-medium flex items-center mr-4"
+            >
+              <i class="far fa-comment-alt mr-1"></i> 3 Replies
+            </button>
+            <button
+              class="text-primary hover:text-primary-dark font-medium flex items-center"
+            >
+              <i class="far fa-edit mr-1"></i> Write a reply
+            </button>
+          </div>
+        </div>
+
+        <div class="border rounded-lg p-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h4 class="font-bold">Clinic Holiday Schedule</h4>
+              <p class="text-xs text-gray-500">Dr. Smith - 2 hours ago</p>
+            </div>
+            <button class="text-gray-400 hover:text-gray-600">
+              <i class="far fa-bookmark"></i>
+            </button>
+          </div>
+
+          <div class="space-y-3 text-gray-700 text-sm">
+            <p>
+              Just a reminder that the clinic will be closed from December 24th
+              to January 2nd for the holidays. Please make sure all patient
+              appointments are rescheduled accordingly.
+            </p>
+          </div>
+
+          <div class="mt-4 flex items-center text-sm">
+            <button
+              class="text-primary hover:text-primary-dark font-medium flex items-center mr-4"
+            >
+              <i class="far fa-comment-alt mr-1"></i> 5 Replies
+            </button>
+            <button
+              class="text-primary hover:text-primary-dark font-medium flex items-center"
+            >
+              <i class="far fa-edit mr-1"></i> Write a reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div class="space-y-6">
+    <!-- Quick Actions -->
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in"
+    >
+      <div class="border-b border-gray-200 px-6 py-4">
+        <h3 class="font-semibold text-gray-800">Quick Actions</h3>
+      </div>
+      <div class="p-4 grid grid-cols-2 gap-3">
+        <a
+          href="#"
+          class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center"
+        >
+          <div
+            class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2"
+          >
+            <i class="fas fa-plus"></i>
+          </div>
+          <p class="text-xs font-medium">New Patient</p>
+        </a>
+        <a
+          href="#"
+          class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center"
+        >
+          <div
+            class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2"
+          >
+            <i class="far fa-calendar-plus"></i>
+          </div>
+          <p class="text-xs font-medium">New Appointment</p>
+        </a>
+        <a
+          href="#"
+          class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center"
+        >
+          <div
+            class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2"
+          >
+            <i class="fas fa-file-invoice"></i>
+          </div>
+          <p class="text-xs font-medium">Create Invoice</p>
+        </a>
+        <a
+          href="#"
+          class="p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-primary-light transition-colors text-center"
+        >
+          <div
+            class="w-10 h-10 bg-primary-light text-primary rounded-full flex items-center justify-center mx-auto mb-2"
+          >
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <p class="text-xs font-medium">View Reports</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- Draft Treatment Notes -->
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in"
+    >
+      <div class="border-b border-gray-200 px-6 py-4">
+        <h3 class="font-semibold text-gray-800">Draft Treatment Notes</h3>
+      </div>
+      <div class="p-6 text-center">
+        <div
+          class="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-check text-xl"></i>
+        </div>
+        <h4 class="font-medium text-gray-800 mb-1">All caught up!</h4>
+        <p class="text-sm text-gray-500">You have no draft treatment notes.</p>
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div
+      class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-fade-in"
+    >
+      <div class="border-b border-gray-200 px-6 py-4">
+        <h3 class="font-semibold text-gray-800">Recent Activity</h3>
+      </div>
+      <div class="divide-y divide-gray-200">
+        <div class="px-6 py-3">
+          <div class="flex items-start">
+            <div class="mr-3 mt-0.5">
+              <div
+                class="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center"
+              >
+                <i class="fas fa-calendar-check text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">New appointment scheduled</p>
+              <p class="text-xs text-gray-500">Sarah Johnson - Today 9:15 AM</p>
+            </div>
+            <span class="text-xs text-gray-400">10m ago</span>
+          </div>
+        </div>
+
+        <div class="px-6 py-3">
+          <div class="flex items-start">
+            <div class="mr-3 mt-0.5">
+              <div
+                class="w-8 h-8 bg-purple-50 text-purple-500 rounded-full flex items-center justify-center"
+              >
+                <i class="fas fa-file-invoice-dollar text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">Invoice #INV-2023-105 created</p>
+              <p class="text-xs text-gray-500">John Smith - $150.00</p>
+            </div>
+            <span class="text-xs text-gray-400">1h ago</span>
+          </div>
+        </div>
+
+        <div class="px-6 py-3">
+          <div class="flex items-start">
+            <div class="mr-3 mt-0.5">
+              <div
+                class="w-8 h-8 bg-green-50 text-green-500 rounded-full flex items-center justify-center"
+              >
+                <i class="fas fa-check-circle text-sm"></i>
+              </div>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">Payment received</p>
+              <p class="text-xs text-gray-500">Michael Brown - $85.00</p>
+            </div>
+            <span class="text-xs text-gray-400">2h ago</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
-
-
-
-

@@ -45,17 +45,19 @@ def patient(request):
             # Apply search conditions
             patients = patients.filter(search_conditions)
             
-            # If no results with basic search, try trigram similarity
+            # If no results with basic search, try broader search
             if patients.count() == 0:
-                patients = Patient.objects.annotate(
-                    sim_first=TrigramSimilarity('first_name', search_query),
-                    sim_last=TrigramSimilarity('last_name', search_query),
-                    sim_id=TrigramSimilarity('hospital_patient_id', search_query),
-                ).filter(
-                    Q(sim_first__gt=0.2) |
-                    Q(sim_last__gt=0.2) |
-                    Q(sim_id__gt=0.2)
-                ).order_by('-sim_first', '-sim_last', '-sim_id')
+                # Try partial matches with different approaches
+                broader_conditions = Q()
+                
+                # Try each word individually
+                for word in search_query.split():
+                    if len(word) >= 2:
+                        broader_conditions |= Q(first_name__icontains=word)
+                        broader_conditions |= Q(last_name__icontains=word)
+                        broader_conditions |= Q(hospital_patient_id__icontains=word)
+                
+                patients = Patient.objects.filter(broader_conditions).order_by('first_name', 'last_name')
         
         # Apply status filter
         if status_filter:
@@ -214,23 +216,17 @@ def search_patients_ajax(request):
         # Exact matches first
         exact_matches = Patient.objects.filter(search_conditions)[:5]
         
-        # Fuzzy matches with trigram similarity
-        fuzzy_matches = Patient.objects.annotate(
-            sim_first=TrigramSimilarity('first_name', query),
-            sim_last=TrigramSimilarity('last_name', query),
-            sim_id=TrigramSimilarity('hospital_patient_id', query),
-            sim_phone=TrigramSimilarity('phone_number', query),
-            sim_email=TrigramSimilarity('email', query),
-        ).filter(
-            Q(sim_first__gt=0.2) |
-            Q(sim_last__gt=0.2) |
-            Q(sim_id__gt=0.2) |
-            Q(sim_phone__gt=0.2) |
-            Q(sim_email__gt=0.2)
-        ).exclude(search_conditions).order_by('-sim_first', '-sim_last', '-sim_id', '-sim_phone', '-sim_email')[:5]
+        # Broader search for partial matches
+        broader_matches = Patient.objects.filter(
+            Q(first_name__icontains=query[:3]) |  # First 3 chars
+            Q(last_name__icontains=query[:3]) |
+            Q(hospital_patient_id__icontains=query[:3]) |
+            Q(phone_number__icontains=query) |
+            Q(email__icontains=query)
+        ).exclude(search_conditions).order_by('first_name', 'last_name')[:5]
         
         # Combine and format results
-        all_patients = list(exact_matches) + list(fuzzy_matches)
+        all_patients = list(exact_matches) + list(broader_matches)
         
         for patient in all_patients[:10]:  # Limit to 10 results
             results.append({

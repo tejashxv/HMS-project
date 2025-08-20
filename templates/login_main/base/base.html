@@ -1,232 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HMS - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/main.min.css"
+      rel="stylesheet"
+    />
 
     <style>
-        :root {
-            --primary: #0e7490;
-            --primary-light: #ecfeff;
-            --secondary: #1e40af;
-            --accent: #7c3aed;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #1f2937;
-        }
-        
-        .sidebar-item {
-            color: #4b5563; /* Default text and icon color */
-        }
+      :root {
+        --primary: #0e7490;
+        --primary-light: #ecfeff;
+        --secondary: #1e40af;
+        --accent: #7c3aed;
+      }
 
-        .sidebar-item.active {
-            background-color: rgba(14, 116, 144, 0.1);
-            color: var(--primary); /* Active text and icon color */
-            border-left: 3px solid var(--primary);
-            font-weight: 500;
-        }
-        
-        .sidebar-item:hover:not(.active) {
-            background-color: rgba(14, 116, 144, 0.05);
-        }
-        
-        .badge {
-            font-size: 0.65rem;
-            padding: 0.15rem 0.4rem;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
+      body {
+        font-family: "Inter", sans-serif;
+        color: #1f2937;
+      }
 
-        .appointment-calendar {
-            border-collapse: separate;
-            border-spacing: 4px;
+      .sidebar-item {
+        color: #4b5563; /* Default text and icon color */
+      }
+
+      .sidebar-item.active {
+        background-color: rgba(14, 116, 144, 0.1);
+        color: var(--primary); /* Active text and icon color */
+        border-left: 3px solid var(--primary);
+        font-weight: 500;
+      }
+
+      .sidebar-item:hover:not(.active) {
+        background-color: rgba(14, 116, 144, 0.05);
+      }
+
+      .badge {
+        font-size: 0.65rem;
+        padding: 0.15rem 0.4rem;
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-        
-        .appointment-calendar th {
-            background-color: #f8fafc;
-            font-weight: 500;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        
-        .appointment-calendar td {
-            height: 80px;
-            vertical-align: top;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-        
-        .appointment-calendar td:hover {
-            background-color: #f8fafc;
-        }
-        
-        .appointment-calendar .today {
-            background-color: #ecfeff;
-            border-color: #06b6d4;
-        }
-        
-        .appointment-badge {
-            font-size: 0.7rem;
-            padding: 0.15rem 0.3rem;
-            margin: 0.1rem 0;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            border-radius: 0.25rem;
-        }
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+
+      .delay-100 {
+        animation-delay: 0.1s;
+      }
+      .delay-200 {
+        animation-delay: 0.2s;
+      }
+      .delay-300 {
+        animation-delay: 0.3s;
+      }
+
+      .appointment-calendar {
+        border-collapse: separate;
+        border-spacing: 4px;
+      }
+
+      .appointment-calendar th {
+        background-color: #f8fafc;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+      }
+
+      .appointment-calendar td {
+        height: 80px;
+        vertical-align: top;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+      }
+
+      .appointment-calendar td:hover {
+        background-color: #f8fafc;
+      }
+
+      .appointment-calendar .today {
+        background-color: #ecfeff;
+        border-color: #06b6d4;
+      }
+
+      .appointment-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.3rem;
+        margin: 0.1rem 0;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-radius: 0.25rem;
+      }
     </style>
-    {% block extra_style %}
-    {% endblock extra_style %}
-</head>
-<body class="bg-gray-50">
-
+    {% block extra_style %} {% endblock extra_style %}
+  </head>
+  <body class="bg-gray-50">
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-sm">
-            <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-                <a href="#" class="text-xl font-bold flex items-center text-primary">
-                    <svg class="w-8 h-8 mr-2 text-primary" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                    <span class="text-primary">HMS</span>
-                </a>
-                <button id="sidebar-close" class="md:hidden text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="px-4 py-3 border-b border-gray-200">
-                <div class="relative">
-                    <input type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
-                </div>
-            </div>
-            
-            <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-                <!-- Dashboard Link -->
-                <a href="{% url 'Dashboard' %}" class="sidebar-item {% if active_page == 'home_tenant' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors">
-                    <i class="fas fa-chart-pie mr-3"></i>
-                    Dashboard
-                </a>
-                <!-- Appointments Link -->
-                <a href="{% url 'Appointments' %}" class="sidebar-item {% if active_page == 'appointments' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors">
-                    <i class="far fa-calendar-alt mr-3"></i>
-                    Appointments
-                    <span class="badge bg-red-100 text-red-800 rounded-full ml-auto">3</span>
-                </a>
-                <!-- Patients Link -->
-                <a href="{% url 'Patients' %}" class="sidebar-item {% if active_page == 'patients' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors">
-                    <i class="fas fa-user-injured mr-3"></i>
-                    Patients
-                </a>
-                <!-- Other links would follow the same pattern -->
-            </nav>
-            
-            <div class="px-4 py-4 mt-auto border-t border-gray-200">
-                <div class="relative">
-                    <button id="user-menu-button" class="flex items-center justify-between w-full px-3 py-2 text-left rounded-lg hover:bg-gray-50 transition-colors focus:outline-none">
-                        <div class="flex items-center">
-                            <img src="https://ui-avatars.com/api/?name=Tejash+Y&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full mr-2" alt="User">
-                            <div>
-                                <p class="text-sm font-medium">Tejash Y</p>
-                                <p class="text-xs text-gray-500">Admin</p>
-                            </div>
-                        </div>
-                        <i id="user-menu-chevron" class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"></i>
-                    </button>
-                    <div id="user-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10 overflow-hidden animate-fade-in">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i class="fas fa-user mr-2 text-gray-500"></i> Profile</a>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i class="fas fa-cog mr-2 text-gray-500"></i> Settings</a>
-                        <a href="{% url 'user_logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i class="fas fa-sign-out-alt mr-2 text-gray-500"></i> Logout</a>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div id="main-content" class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
-            <!-- Header -->
-            <header class="bg-white border-b border-gray-200">
-                <div class="flex items-center justify-between h-16 px-4 md:px-6">
-                    <div class="flex items-center">
-                        <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700 mr-2 focus:outline-none">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        <h2 class="text-lg font-semibold text-gray-800">
-                            {{ page_title|default:" " }}
-                        </h2>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4">
-                        <button class="p-2 text-gray-500 hover:text-gray-700 relative">
-                            <i class="far fa-bell"></i>
-                            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
-                        <button class="p-2 text-gray-500 hover:text-gray-700">
-                            <i class="far fa-question-circle"></i>
-                        </button>
-                        <div class="hidden md:flex items-center">
-                            <div class="text-right mr-3">
-                                <p class="text-sm font-medium">Dr. Tejash Y</p>
-                                <p class="text-xs text-gray-500">Admin</p>
-                            </div>
-                            <img src="https://ui-avatars.com/api/?name=Tejash+Y&background=ecfeff&color=0e7490" class="w-8 h-8 rounded-full" alt="User">
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-                {% block content %}
-                {% endblock content %}
-            </main>
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-sm"
+      >
+        <div
+          class="h-16 flex items-center justify-between px-4 border-b border-gray-200"
+        >
+          <a href="#" class="text-xl font-bold flex items-center text-primary">
+            <svg
+              class="w-8 h-8 mr-2 text-primary"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+              ></path>
+            </svg>
+            <span class="text-primary">HMS</span>
+          </a>
+          <button
+            id="sidebar-close"
+            class="md:hidden text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-        
-        <!-- Sidebar Overlay -->
-        <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"></div>
+
+        <div class="px-4 py-3 border-b border-gray-200">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-sm"
+            />
+            <i
+              class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"
+            ></i>
+          </div>
+        </div>
+
+        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+          <!-- Dashboard Link -->
+          <a
+            href="{% url 'Dashboard' %}"
+            class="sidebar-item {% if active_page == 'home_tenant' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+          >
+            <i class="fas fa-chart-pie mr-3"></i>
+            Dashboard
+          </a>
+          <!-- Appointments Link -->
+          <a
+            href="{% url 'Appointments' %}"
+            class="sidebar-item {% if active_page == 'appointments' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+          >
+            <i class="far fa-calendar-alt mr-3"></i>
+            Appointments {% if todays_remaining_count > 0 %}
+            <span class="badge bg-red-100 text-red-800 rounded-full ml-auto"
+              >{{ todays_remaining_count }}</span
+            >
+            {% elif todays_appointments_count > 0 %}
+            <span class="badge bg-gray-100 text-gray-600 rounded-full ml-auto"
+              >{{ todays_appointments_count }}</span
+            >
+            {% endif %}
+          </a>
+          <!-- Patients Link -->
+          <a
+            href="{% url 'Patients' %}"
+            class="sidebar-item {% if active_page == 'patients' %}active{% endif %} flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+          >
+            <i class="fas fa-user-injured mr-3"></i>
+            Patients {% if new_patients_today > 0 %}
+            <span class="badge bg-green-100 text-green-800 rounded-full ml-auto"
+              >{{ new_patients_today }}</span
+            >
+            {% elif new_patients_this_month > 0 %}
+            <span class="badge bg-blue-100 text-blue-600 rounded-full ml-auto"
+              >{{ new_patients_this_month }}</span
+            >
+            {% endif %}
+          </a>
+          <!-- Other links would follow the same pattern -->
+        </nav>
+
+        <div class="px-4 py-4 mt-auto border-t border-gray-200">
+          <div class="relative">
+            <button
+              id="user-menu-button"
+              class="flex items-center justify-between w-full px-3 py-2 text-left rounded-lg hover:bg-gray-50 transition-colors focus:outline-none"
+            >
+              <div class="flex items-center">
+                <img
+                  src="https://ui-avatars.com/api/?name=Tejash+Y&background=ecfeff&color=0e7490"
+                  class="w-8 h-8 rounded-full mr-2"
+                  alt="User"
+                />
+                <div>
+                  <p class="text-sm font-medium">Tejash Y</p>
+                  <p class="text-xs text-gray-500">Admin</p>
+                </div>
+              </div>
+              <i
+                id="user-menu-chevron"
+                class="fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200"
+              ></i>
+            </button>
+            <div
+              id="user-menu"
+              class="hidden absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 z-10 overflow-hidden animate-fade-in"
+            >
+              <a
+                href="#"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                ><i class="fas fa-user mr-2 text-gray-500"></i> Profile</a
+              >
+              <a
+                href="#"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                ><i class="fas fa-cog mr-2 text-gray-500"></i> Settings</a
+              >
+              <a
+                href="{% url 'user_logout' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                ><i class="fas fa-sign-out-alt mr-2 text-gray-500"></i>
+                Logout</a
+              >
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div
+        id="main-content"
+        class="flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out"
+      >
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200">
+          <div class="flex items-center justify-between h-16 px-4 md:px-6">
+            <div class="flex items-center">
+              <button
+                id="sidebar-toggle"
+                class="text-gray-500 hover:text-gray-700 mr-2 focus:outline-none"
+              >
+                <i class="fas fa-bars"></i>
+              </button>
+              <h2 class="text-lg font-semibold text-gray-800">
+                {{ page_title|default:" " }}
+              </h2>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <button class="p-2 text-gray-500 hover:text-gray-700 relative">
+                <i class="far fa-bell"></i>
+                <span
+                  class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+                ></span>
+              </button>
+              <button class="p-2 text-gray-500 hover:text-gray-700">
+                <i class="far fa-question-circle"></i>
+              </button>
+              <div class="hidden md:flex items-center">
+                <div class="text-right mr-3">
+                  <p class="text-sm font-medium">Dr. Tejash Y</p>
+                  <p class="text-xs text-gray-500">Admin</p>
+                </div>
+                <img
+                  src="https://ui-avatars.com/api/?name=Tejash+Y&background=ecfeff&color=0e7490"
+                  class="w-8 h-8 rounded-full"
+                  alt="User"
+                />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+          {% block content %} {% endblock content %}
+        </main>
+      </div>
+
+      <!-- Sidebar Overlay -->
+      <div
+        id="sidebar-overlay"
+        class="hidden fixed inset-0 bg-black bg-opacity-50 z-20 transition-opacity duration-300"
+      ></div>
     </div>
-    
-    {% include "login_main/base/scripts.html" %}
-    {% block scripts %}
-      
+
+    {% include "login_main/base/scripts.html" %} 
+    {% block scripts %} 
     {% endblock scripts %}
-</body>
+  </body>
 </html>

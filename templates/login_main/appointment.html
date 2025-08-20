@@ -336,25 +336,25 @@
             <div class="flex-1 min-w-0">
               <div class="flex justify-between">
                 <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ appointment.patient.full_name }}
+                  {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}
                 </p>
                 <span
                   class="text-xs px-2 py-0.5 rounded-full {% if appointment.status == 'completed' %}bg-green-100 text-green-800 {% elif appointment.status == 'cancelled' %}bg-red-100 text-red-800 {% else %}bg-blue-100 text-blue-800{% endif %}"
                 >
-                  {{ appointment.get_status_display }}
+                  {{ appointment.status }}
                 </span>
               </div>
               <p class="text-xs text-gray-500">
-                With Dr. {{ appointment.doctor.user.full_name }}
-              </p>
+                With Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}
+              </p> 
               <div class="flex items-center mt-1">
                 <i class="far fa-clock text-xs text-gray-400 mr-1"></i>
                 <span class="text-xs font-medium text-gray-700"
-                  >{{ appointment.time|time:"h:i A" }}</span
+                  >{{ appointment.start_time|time:"h:i A" }}</span
                 >
                 <span class="mx-2 text-gray-300">|</span>
                 <span class="text-xs text-gray-500"
-                  >{{ appointment.get_type_display }}</span
+                  >{{ appointment.reason_for_visit }}</span
                 >
               </div>
             </div>

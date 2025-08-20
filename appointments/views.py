@@ -8,7 +8,6 @@ import datetime
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q, Value, CharField
-from django.contrib.postgres.search import TrigramSimilarity
 from django.urls import reverse
 
 
@@ -46,23 +45,7 @@ def appointements(request):
         status = request.POST.get('status')
         reason_for_visit = request.POST.get('reason_for_visit')
         
-        print(f"Form data received:")
-        print(f"Patient ID: {patient_id}")
-        print(f"Doctor ID: {doctor_id}")
-        print(f"Start Time: {start_time}")
-        print(f"End Time: {end_time}")
-        print(f"Status: {status}")
-        print(f"Reason: {reason_for_visit}")
         
-        # Validate required fields
-        if not patient_id:
-            print("Error: No patient selected")
-        if not doctor_id:
-            print("Error: No doctor selected")
-        if not start_time:
-            print("Error: No start time provide")
-        if not end_time:
-            print("Error: No end time provided")
             
         # Get the actual objects and create appointment
         if patient_id and doctor_id and start_time and end_time:
@@ -109,7 +92,8 @@ def appointements(request):
         'time_slots': time_slots,
         'appointments': appointments,
         'patient': app,
-        'todays_appointments': todays_appointments
+        'todays_appointments': todays_appointments,
+        'todays_appointments_count': todays_appointments.count()
     }
     return render(request, 'login_main/appointment.html', context)
 
@@ -128,31 +112,26 @@ def search_patients(request):
             "hospital_patient_id", "first_name", "last_name", "phone_number"
         )
 
-        # Fuzzy matches with trigram
-        fuzzy_matches = (
-            Patient.objects.annotate(
-                sim_first=TrigramSimilarity("first_name", query),
-                sim_last=TrigramSimilarity("last_name", query),
-                sim_id=TrigramSimilarity("hospital_patient_id", query),
-            )
-            .filter(
-                Q(sim_first__gt=0.3) |
-                Q(sim_last__gt=0.3) |
-                Q(sim_id__gt=0.3)
+        # Broader matches for partial search
+        broader_matches = (
+            Patient.objects.filter(
+                Q(first_name__icontains=query[:3]) |  # First 3 characters
+                Q(last_name__icontains=query[:3]) |
+                Q(hospital_patient_id__icontains=query[:3])
             )
             .exclude(
                 Q(first_name__icontains=query) |
                 Q(last_name__icontains=query) |
                 Q(hospital_patient_id__icontains=query)
             )
-            .order_by("-sim_first", "-sim_last", "-sim_id")
+            .order_by("first_name", "last_name")
             .values(
                 "hospital_patient_id", "first_name", "last_name", "phone_number"
             )
         )
 
         # Merge & limit results
-        results = list(exact_matches) + list(fuzzy_matches)
+        results = list(exact_matches) + list(broader_matches)
         results = results[:10]  # Limit for performance
 
     return JsonResponse(results, safe=False)

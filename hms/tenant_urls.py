@@ -15,4 +15,5 @@ urlpatterns = [
     path('search-patients-ajax/', search_patients_ajax, name='search_patients_ajax'),
     path("search-patients/", search_patients, name="search_patients"),
     path('quick-patient-search/', quick_patient_lookup, name='quick_patient_search'),
+    path('user/', include('users.urls')),  # Add users URLs to tenant context
 ]
